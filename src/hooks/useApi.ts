@@ -12,7 +12,7 @@ interface UseApiOptions {
     onSuccess?: (data: any) => void;
     queryKey: string[];
     options: {
-        onMount?: boolean; // Should auto-execute on mount
+        fetchOnMount?: boolean; // Should auto-execute on mount
         config?: AxiosRequestConfig
     }
 }
@@ -27,7 +27,7 @@ const useApi = <K>({ url, onError, onSuccess, queryKey, options }: UseApiOptions
     return useQuery({
         queryKey: queryKey,
         queryFn: () => fetch,
-        enabled: options.onMount, // don't fetch automatically
+        enabled: options.fetchOnMount, // don't fetch automatically
         staleTime: 1000 * 60 * 5, // cache for 5 minutes
 
     });
