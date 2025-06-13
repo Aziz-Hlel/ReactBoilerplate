@@ -52,3 +52,39 @@ export default tseslint.config({
   },
 })
 ```
+
+
+
+# Boilerplate for  React + Tsx + Vite + Tailwind
+# Installed packages are : react-router-dom, axios, @tanstack/react-query
+
+This boilerplate provides a minimal and reusable setup to get a project up and starting without rewrite the same thing
+this is my interpelations of a lot of the most popular design system i learned over the uears like DRY and CLEAN code and other that
+made sense. 
+
+- ENV object , stores all the enviorment values and throw an error when the project start if any of the values are unindefined
+
+- ApiGateway , an object stores all the api paths utilized in the project 
+
+- an ApiService that handles all api requests
+
+- a class that handles and manages Jwt tokens 
+
+- an auth context provider to manage authentification
+
+<!-- 
+! Authorization is not included 
+ -->
+- protected Route (self explanatory)
+
+<!-- 
+! Not relly still in proccess 
+ -->
+- an agnostic Toast manager to handle all pop up alerts , 
+
+
+
+
+
+Shit to look into :
+- add useMutation

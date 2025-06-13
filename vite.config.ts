@@ -9,7 +9,7 @@ export default defineConfig({
 
   envPrefix: 'VITE_',
 
-
+  
   plugins: [
     react(),
     tailwindcss(),

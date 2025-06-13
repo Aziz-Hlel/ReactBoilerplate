@@ -1,83 +1,27 @@
-const VITE_API_URL = import.meta.env.VITE_API_URL
+import ENV from "../../utils/env.variables";
 
-if (!VITE_API_URL) throw new Error("VITE_API_URL is not defined in the env");
 
-export const baseUrl = VITE_API_URL + "/api";
 
 const apiGateway = {
 
-    baseUrl: baseUrl,
+    baseUrl: ENV.BASE_URL,
 
     user: {
-        me: "/user/me",
-        signUp: "/user/register",
+        me: "/user/me" as const, // * when talking to chat it advise you to do them this way, look into it,  me: () => "/user/me" as const, 
+        login: () => "/user/login",
         sigIn: "/user/login",
         refresh: "/user/refresh",
-        getById: "/user/",
-        updateAgent: "/user/update-agent",
-        update: "/user/update-user",
-        logOut: "/user/log-out",
-        requestResetPassword: "/user/request-reset-password",
-        resetPassword: "/user/reset-password",
-        changePassword: "/user/change-password",
+        signUp: "/user/signup",
     },
-
-
-    property: {
-        list: "/property",
-        create: "/property",
-        getById: "/property",
-        update: "/property",
-        delete: "/property",
-        myProperties: {
-            list: "/property/my-properties",
-        },
-        pendingProperties: {
-            list: "/property/pending-properties",
-        },
-        unavailableProperties: {
-            list: "/property/unavailable-properties",
-        },
-
-        approve: "/property/approve",
-        decline: "/property/decline",
-        unavailable: "/property/unavailable",
-        all_properties: "/property/all-properties",
-
-        feature: {
-            listAll: "/property/featured-properties",
-            update: "/property/feature",
-        },
-
-
-
-    },
-
-    agent: {
-        list: "/agent/",
-        create: "/agent",
-        update: "/agent",
-        delete: "/agent",
-    },
-
-
-    sponsor: {
-        get: "/sponsor/",
-        getAll: "/sponsor/all",
-        create: "/sponsor",
-        delete: "/sponsor",
-        update: "/sponsor",
-    },
-
 
     services: {
         emailContactUs: "/services/email/contact-us",
         emailProperty: "/services/email/property",
     },
 
-    images: baseUrl + "/images/",
+    images: ENV.BASE_URL + "/images/",
 
-    getSignedUrl: baseUrl + "/images/getSignedUrl",
+    getSignedUrl: ENV.BASE_URL + "/images/getSignedUrl",
 
 }
 

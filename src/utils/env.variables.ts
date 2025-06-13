@@ -1,17 +1,21 @@
 
 const VITE_API_URL = import.meta.env.VITE_API_URL
-
-
+const BASE_URL = VITE_API_URL + "/api";
 
 
 const ENV = {
     VITE_API_URL,
-}
+    BASE_URL
+};
 
 
-for (const env in ENV) {
-    if (!env) throw new Error("VITE_API_URL is not defined in the env");
-}
 
+
+(Object.keys(ENV) as Array<keyof typeof ENV>).forEach((key) => {
+    if (!ENV[key] || ENV[key] === "")
+        throw new Error(`${key} is not defined in the environment variables`);
+})
+
+console.log("✅   ENV is valid")
 
 export default ENV;
