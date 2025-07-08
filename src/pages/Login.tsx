@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 
 const Login = () => {
@@ -7,6 +8,9 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const navigate = useNavigate();
+
+    const { login } = useAuth();
 
     const validate = () => {
         const newErrors: typeof errors = {};
@@ -23,8 +27,16 @@ const Login = () => {
 
         setIsSubmitting(true);
         try {
-            console.log({ email, password });
-            // TODO: call login API
+            const response = await login({ email, password });
+            if (response.success)
+                navigate("/protected")
+
+            if (!response.success && response.status === 401) setErrors({ email: "Invalid email or password" });
+
+            if (!response.success && response.status !== 401) alert("uncaught error");
+            
+
+
         } finally {
             setIsSubmitting(false);
         }
@@ -56,16 +68,19 @@ const Login = () => {
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition hover:cursor-pointer"
             >
                 {isSubmitting ? "Logging in..." : "Login"}
             </button>
-            <Link
-                to="/signup"
-                className="w-full flex justify-center  text-black rounded-md  transition"
-            >
-                Sign up
-            </Link>
+
+            <div className="w-full flex justify-center">
+                <Link
+                    to="/signup"
+                    className=" flex justify-center  text-black rounded-md  transition "
+                >
+                    Sign up
+                </Link>
+            </div>
         </form>
     );
 }

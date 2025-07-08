@@ -6,17 +6,16 @@ const apiGateway = {
 
     baseUrl: ENV.BASE_URL,
 
-    user: {
-        me: "/user/me" as const, // * when talking to chat it advise you to do them this way, look into it,  me: () => "/user/me" as const, 
-        login: () => "/user/login",
-        sigIn: "/user/login",
-        refresh: "/user/refresh",
-        signUp: "/user/signup",
+    auth: {
+        me: () => "/user/me" as const, 
+        login: () => "/auth/login" as const,
+        refresh: () => "/auth/refresh" as const,
+        signUp: () => "/users/" as const,
     },
 
     services: {
-        emailContactUs: "/services/email/contact-us",
-        emailProperty: "/services/email/property",
+        emailContactUs: () => "/services/email/contact-us" as const,
+        emailProperty: () => "/services/email/property" as const,
     },
 
     images: ENV.BASE_URL + "/images/",

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const SignUp = () => {
 
@@ -8,6 +9,8 @@ const SignUp = () => {
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+    const { signup } = useAuth();
+    const navigate = useNavigate();
 
     const validate = () => {
         const newErrors: typeof errors = {};
@@ -25,15 +28,26 @@ const SignUp = () => {
 
         setIsSubmitting(true);
         try {
-            console.log({ name, email, password });
-            // TODO: call signup API
+
+            const response = await signup({ name, email, password });
+
+            if (response.success)
+                navigate('/protected');
+
+            if (!response.success && response.status === 309) setErrors({ email: "Email already exists" });
+
+            if (!response.success && response.status !== 309) alert("Uncaught error");
+            
+
+
         } finally {
             setIsSubmitting(false);
         }
+
     };
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-sm w-full mx-auto space-y-4">
+        <form onSubmit={handleSubmit} className="max-w-sm w-full mx-auto space-y-4 justify-center  items-center">
             <h2 className="text-xl font-semibold text-center">Sign Up</h2>
             <div>
                 <input
@@ -68,16 +82,19 @@ const SignUp = () => {
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
+                className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition hover:cursor-pointer "
             >
                 {isSubmitting ? "Signing up..." : "Sign Up"}
             </button>
-            <Link
-                to="/login"
-                className="w-full flex justify-center  text-black rounded-md  transition"
-            >
-                Log in
-            </Link>
+
+            <div className=" w-full flex justify-center">
+                <Link
+                    to="/login"
+                    className="w-fit flex justify-center  text-black rounded-md  transition  text-center"
+                >
+                    Log in
+                </Link>
+            </div>
         </form>
     );
 

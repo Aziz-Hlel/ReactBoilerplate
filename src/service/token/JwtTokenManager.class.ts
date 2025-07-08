@@ -6,6 +6,11 @@ class JwtTokenManager {
 
     private refreshTokenKeyName = 'refreshToken'; // jwt refresh token keyName in localStorage  
 
+    constructor() {
+        // Load refresh token from localStorage on app start    
+        this.refreshToken = localStorage.getItem(this.refreshTokenKeyName);
+    }
+
     // Set tokens in memory and localStorage
     setTokens(access: string, refresh: string): void {
         this.accessToken = access;
@@ -20,10 +25,10 @@ class JwtTokenManager {
 
     // Get refresh token from memory or localStorage
     getRefreshToken(): string | null {
-        return this.refreshToken || localStorage.getItem(this.refreshTokenKeyName);
+        return this.refreshToken;
     }
 
-    // Load refresh token from localStorage on app start    
+    // Load refresh token from localStorage on app start
     loadTokensFromStorage(): void {
         this.refreshToken = localStorage.getItem(this.refreshTokenKeyName);
     }

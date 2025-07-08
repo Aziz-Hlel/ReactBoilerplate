@@ -130,8 +130,10 @@ class ApiService {
     // Wrapper methods with error handling
     async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
         try {
-            const response = await this.api.get<T>(url, config);
-            return { data: response.data, status: response.status, success: true };
+
+            const response = await this.api.get<ApiResponse<T>>(url, config);
+            return { data: response.data.data, status: response.status, success: true };
+
         } catch (error: any) {
 
             const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
@@ -146,8 +148,10 @@ class ApiService {
 
     async getThrowable<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
         try {
-            const response = await this.api.get<T>(url, config);
-            return { data: response.data, status: response.status, success: true };
+
+            const response = await this.api.get<ApiResponse<T>>(url, config);
+            return { data: response.data.data, status: response.status, success: true };
+
         } catch (error: any) {
 
             const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
@@ -160,27 +164,45 @@ class ApiService {
         }
     }
 
-    async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    async post<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
         try {
-            const response = await this.api.post<T>(url, data, config);
-            return { data: response.data, status: response.status, success: true };
+            const response = await this.api.post<ApiResponse<T>>(url, data, config);
+            return { data: response.data.data, status: response.status, success: true };
+        } catch (error: any) {
+
+            const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
+
+            const status = error.response?.status
+            console.log("error : ", error)
+            console.log("status from the try catch : ", status)
+            // if (status !== 201 || status !== 200) this.throwErrorAlert(status, apiErrorMessage);
+
+            return { error: apiErrorMessage, data: {} as any, status: status ?? 401, success: false };
+
+        }
+    }
+
+    async postThrowable<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+        try {
+            const response = await this.api.post<ApiResponse<T>>(url, data, config);
+            return { data: response.data.data, status: response.status, success: true };
         } catch (error: any) {
 
             const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
 
             const status = error.response?.status
 
-            if (status !== 201) this.throwErrorAlert(status, apiErrorMessage);
+            if (status !== 201 || status !== 200) this.throwErrorAlert(status, apiErrorMessage);
 
-            return { error: apiErrorMessage, data: {} as any, status, success: false };
+            throw { error: apiErrorMessage, data: {} as any, status, success: false };
 
         }
     }
 
-    async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    async put<T>(url: string, data: any, config?: AxiosRequestConfig,): Promise<ApiResponse<T>> {
         try {
-            const response = await this.api.put<T>(url, data, config);
-            return { data: response.data, status: response.status, success: true };
+            const response = await this.api.put<ApiResponse<T>>(url, data, config);
+            return { data: response.data.data, status: response.status, success: true };
         } catch (error: any) {
 
             const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
@@ -191,13 +213,29 @@ class ApiService {
 
             return { error: apiErrorMessage, data: {} as any, status, success: false };
 
+        }
+    }
+
+    async putThrowable<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+        try {
+            const response = await this.api.put<ApiResponse<T>>(url, data, config);
+            return { data: response.data.data, status: response.status, success: true };
+        } catch (error: any) {
+
+            const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
+
+            const status = error.response?.status
+
+            if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
+
+            throw { error: apiErrorMessage, data: {} as any, status, success: false };
         }
     }
 
     async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
         try {
-            const response = await this.api.delete<T>(url, config);
-            return { data: response.data, status: response.status, success: true };
+            const response = await this.api.delete<ApiResponse<T>>(url, config);
+            return { data: response.data.data, status: response.status, success: true };
         } catch (error: any) {
 
             const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
@@ -209,6 +247,23 @@ class ApiService {
             return { error: apiErrorMessage, data: {} as any, status, success: false };
         }
     }
+
+    async deleteThrowable<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+        try {
+            const response = await this.api.delete<ApiResponse<T>>(url, config);
+            return { data: response.data.data, status: response.status, success: true };
+        } catch (error: any) {
+
+            const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed'
+
+            const status = error.response?.status
+
+            if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
+
+            return { error: apiErrorMessage, data: {} as any, status, success: false };
+        }
+    }
+
 
 
 }
