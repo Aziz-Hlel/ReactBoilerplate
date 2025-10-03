@@ -1,0 +1,5 @@
+
++ add prettier 
++ change apigateway to api Route 
++ make a base apiService and each a service for each model importing from the base service
++ make env in config file and refine it better , port is not needed in stage and prod for example
