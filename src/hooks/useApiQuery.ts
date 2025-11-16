@@ -1,4 +1,4 @@
-import { apiService } from "../service/Api/apiService";
+import { apiService } from "../Api/apiService";
 import type { AxiosRequestConfig } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import type { Pageable } from "../Api/types/Pageable";

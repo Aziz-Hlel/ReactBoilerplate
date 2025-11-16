@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound";
 import AuthenticatedRoutes from "./guard/AuthenticatedRoutes";
 import Profile from "./pages/Profile";
 import { AuthProvider } from "./context/AuthContext";
+import SignIn from "./components/SignIn/SignIn";
 
 
 const queryClient = new QueryClient();
@@ -23,7 +24,7 @@ function App() {
             <Routes>
 
               <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
 
               <Route element={<AuthenticatedRoutes />}>
