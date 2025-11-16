@@ -1,6 +1,6 @@
 import type { ApiResponse } from "@/Api/ApiResponse";
 import { authService } from "@/Api/service/authService";
-import type { ISignIn, ISignUp } from "@/Api/service/IauthService";
+import type { IauthService } from "@/Api/service/IauthService";
 import { jwtTokenManager } from "@/Api/token/JwtTokenManager.class";
 import type { SignInRequestDto } from "@/types/auth/SignInRequestDto";
 import type { SignInResponseDto } from "@/types/auth/SignInResponseDto";
@@ -18,8 +18,8 @@ type AuthState =
 type IAuthContext = {
     authState: AuthState;
     user: User | null;
-    login: ISignIn;
-    register: ISignUp;
+    login: IauthService["signIn"];
+    register: IauthService["signUp"];
     logout: () => void;
 };
 
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
     });
 
-    const register: ISignUp = useCallback(
+    const register: IauthService["signUp"] = useCallback(
         async (data: SignUpRequestDto) => {
             try {
                 return await signUpMutation.mutateAsync(data);
@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         [signUpMutation],
     );
 
-    const login = useCallback(
+    const login: IauthService["signIn"] = useCallback(
         async (data: SignInRequestDto) => {
             try {
                 return await loginMutation.mutateAsync(data);

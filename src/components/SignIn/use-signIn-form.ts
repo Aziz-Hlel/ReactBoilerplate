@@ -4,14 +4,28 @@ import {
   type SignInRequestDto,
   singInSchema,
 } from "@/types/auth/SignInRequestDto";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const useSignInForm = () => {
   const form = useForm<SignInRequestDto>({
     resolver: zodResolver(singInSchema),
   });
 
-  const onSubmit = (data: SignInRequestDto) => {
-    console.log(data);
+  const { login } = useAuth();
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: SignInRequestDto) => {
+    try {
+      const response = await login(data);
+
+      if (response.success) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return {
