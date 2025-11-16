@@ -1,7 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import {
   singUpSchema,
-  type SignUpRequestDto,
   type SignUpRequestSchema,
 } from "@/types/auth/SignUpRequestDto";
 import { zodResolver } from "@hookform/resolvers/zod";

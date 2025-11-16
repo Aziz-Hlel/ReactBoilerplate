@@ -1,9 +1,5 @@
 
 
-
-import React from 'react'
-import useSignUpForm from './use-signUp-form';
-
 const SignUp = () => {
 
     // const { form, onSubmit } = useSignUpForm();
