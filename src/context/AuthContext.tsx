@@ -18,8 +18,8 @@ type AuthState =
 type IAuthContext = {
     authState: AuthState;
     user: User | null;
-    login: IauthService["signIn"];
-    register: IauthService["signUp"];
+    signIn: IauthService["signIn"];
+    signUp: IauthService["signUp"];
     logout: () => void;
 };
 
@@ -140,8 +140,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         () => ({
             authState,
             user: authState.user,
-            login,
-            register,
+            signIn: login,
+            signUp: register,
             logout,
         }),
         [login, register, logout, authState],

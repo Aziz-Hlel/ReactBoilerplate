@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input"
 import useSignUpForm from "./use-signUp-form";
 import { Controller } from "react-hook-form";
+import { Link } from "react-router-dom";
 
 export function SignupForm() {
 
@@ -20,33 +21,12 @@ export function SignupForm() {
     return (
         <form className={cn("flex flex-col gap-6",)} id={formId} onSubmit={form.handleSubmit(onSubmit)} >
             <FieldGroup>
-                <div className="flex flex-col items-center gap-1 text-center">
+                <div className="flex flex-col items-center gap-1 text-center text-nowrap">
                     <h1 className="text-2xl font-bold">Create your account</h1>
                     <p className="text-muted-foreground text-sm text-balance">
                         Fill in the form below to create your account
                     </p>
                 </div>
-
-                <Controller
-                    name="username"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={`${formId}-${field.name}`}>
-                                Username
-                            </FieldLabel>
-                            <Input
-                                {...field}
-                                id={`${formId}-${field.name}`}
-                                aria-invalid={fieldState.invalid}
-                                placeholder="John Doe"
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[fieldState.error]} />
-                            )}
-                        </Field>
-                    )}
-                />
 
                 <Controller
                     name="email"
@@ -127,7 +107,7 @@ export function SignupForm() {
                         Sign up with GitHub
                     </Button>
                     <FieldDescription className="px-6 text-center">
-                        Already have an account? <a href="#">Sign in</a>
+                        Already have an account? <Link to="/signin">Sign in</Link>
                     </FieldDescription>
                 </Field>
             </FieldGroup>

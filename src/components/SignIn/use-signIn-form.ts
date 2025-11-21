@@ -12,7 +12,7 @@ const useSignInForm = () => {
     resolver: zodResolver(singInSchema),
   });
 
-  const { login } = useAuth();
+  const { signIn: login } = useAuth();
 
   const navigate = useNavigate();
 
