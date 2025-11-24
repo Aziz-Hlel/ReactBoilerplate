@@ -18,6 +18,13 @@ export const singUpSchema = z
     path: ["confirmPassword"],
   });
 
+export const firebaseSingUpSchema = z.object({
+  tokenId: z
+    .string({ message: "Invalid idToken" })
+    .trim()
+    .max(255, { message: "Email is too long, max 255 characters" }),
+});
 
 export type SignUpRequestSchema = z.infer<typeof singUpSchema>;
+export type FirebaseSignUpRequestSchema = z.infer<typeof firebaseSingUpSchema>;
 export type SignUpRequestDto = Omit<SignUpRequestSchema, "confirmPassword">;

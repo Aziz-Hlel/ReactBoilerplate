@@ -7,6 +7,7 @@ import AuthenticatedRoutes from "./guard/AuthenticatedRoutes";
 import Profile from "./pages/Profile";
 import { AuthProvider } from "./context/AuthContext";
 import SignIn from "./components/SignIn/SignIn";
+import ConnectivityRoute from "./guard/ConnectivityRoute";
 
 
 const queryClient = new QueryClient();
@@ -18,30 +19,32 @@ function App() {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <Router>
-            <Routes>
+        <ConnectivityRoute >
+          <AuthProvider>
+            <Router>
+              <Routes>
 
-              <Route path="/" element={<Home />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/signup" element={<SignUp />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
 
-              <Route element={<AuthenticatedRoutes />}>
+                <Route element={<AuthenticatedRoutes />}>
 
-                <Route path="/protected" element={<Profile />} />
-
-
-
-              </Route>
+                  <Route path="/protected" element={<Profile />} />
 
 
 
-              <Route path="*" element={<NotFound />} />
+                </Route>
 
 
-            </Routes>
-          </Router>
-        </AuthProvider>
+
+                <Route path="*" element={<NotFound />} />
+
+
+              </Routes>
+            </Router>
+          </AuthProvider>
+        </ConnectivityRoute>
       </QueryClientProvider>
     </>
   )

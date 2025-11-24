@@ -12,12 +12,14 @@ import { Input } from "@/components/ui/input"
 import useSignUpForm from "./use-signUp-form";
 import { Controller } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { Spinner } from "../ui/spinner";
 
 export function SignupForm() {
 
     const { form, onSubmit } = useSignUpForm();
 
     const formId = "sign-up-form"
+    const isFormSubmitting = form.formState.isSubmitting;
     return (
         <form className={cn("flex flex-col gap-6",)} id={formId} onSubmit={form.handleSubmit(onSubmit)} >
             <FieldGroup>
@@ -93,7 +95,20 @@ export function SignupForm() {
                 />
 
                 <Field>
-                    <Button type="submit">Create Account</Button>
+                    <Button type="submit" disabled={isFormSubmitting}>
+                        {
+                            isFormSubmitting ?
+                                <>
+                                    <Spinner />
+                                    Loading...
+                                </>
+                                :
+                                <>
+                                    Create Account
+                                </>
+                        }
+
+                    </Button>
                 </Field>
                 <FieldSeparator>Or continue with</FieldSeparator>
                 <Field>

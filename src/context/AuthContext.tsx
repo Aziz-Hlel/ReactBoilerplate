@@ -4,11 +4,11 @@ import type { IauthService } from "@/Api/service/IauthService";
 import { jwtTokenManager } from "@/Api/token/JwtTokenManager.class";
 import type { SignInRequestDto } from "@/types/auth/SignInRequestDto";
 import type { SignInResponseDto } from "@/types/auth/SignInResponseDto";
-import type { SignUpRequestDto } from "@/types/auth/SignUpRequestDto";
 import type { SignUpResponseDto } from "@/types/auth/SignUpResponseDto";
 import type { User } from "@/types/user/user";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { createContext, useMemo, useCallback, useContext } from "react";
+import { getAuth } from "firebase/auth";
 
 type AuthState =
     | { status: "loading"; user: null }
@@ -94,8 +94,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         mutationFn: authService.signUp,
         onSuccess: (response) => {
             if (!response.success) return;
-            jwtTokenManager.setTokens(response.data.accessToken, response.data.refreshToken);
-            queryClient.setQueryData(AUTH_QUERY_KEY, response);
+            const newRefreshToken = getAuth().currentUser?.getIdToken();
+            console.log('new refrehs :', newRefreshToken)
+            // jwtTokenManager.setTokens(response.data.accessToken, response.data.refreshToken);
+            // queryClient.setQueryData(AUTH_QUERY_KEY, response);
         },
     });
 
@@ -109,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     const register: IauthService["signUp"] = useCallback(
-        async (data: SignUpRequestDto) => {
+        async (data) => {
             try {
                 return await signUpMutation.mutateAsync(data);
             } catch (error) {

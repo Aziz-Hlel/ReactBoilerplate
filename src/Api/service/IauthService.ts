@@ -1,12 +1,10 @@
 import type { SignInRequestDto } from "@/types/auth/SignInRequestDto";
 import type { SignInResponseDto } from "@/types/auth/SignInResponseDto";
 import type { ApiResponse } from "../ApiResponse";
-import type { SignUpRequestDto } from "@/types/auth/SignUpRequestDto";
+import type { FirebaseSignUpRequestSchema } from "@/types/auth/SignUpRequestDto";
 import type { SignUpResponseDto } from "@/types/auth/SignUpResponseDto";
 import type { User } from "@/types/user/user";
 import type { RefreshRequestDto } from "@/types/auth/RefreshRequestDto";
-
-
 
 export interface IauthService {
   signIn: (
@@ -14,7 +12,7 @@ export interface IauthService {
   ) => Promise<ApiResponse<SignInResponseDto>>;
 
   signUp: (
-    payload: SignUpRequestDto
+    payload: FirebaseSignUpRequestSchema
   ) => Promise<ApiResponse<SignUpResponseDto>>;
   me: () => Promise<ApiResponse<User>>;
   refresh: (
