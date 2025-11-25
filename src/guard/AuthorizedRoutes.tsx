@@ -1,10 +1,5 @@
+import React from "react";
 
+const AuthorizedRoutes = () => {};
 
-import React from 'react'
-
-const AuthorizedRoutes = () => {
-   
-    
-}
-
-export default AuthorizedRoutes
+export default AuthorizedRoutes;

@@ -1,7 +1,3 @@
-
-
-
-
 // interface sweetAlertProps {
 //     title: string;
 //     text: string;
@@ -32,7 +28,6 @@
 //     });
 // }
 
-
 // export const Alert = (sweetAlertProps: SweetAlertResult) => {
 //     Swal.fire({
 //         title: sweetAlertProps.title,
@@ -41,7 +36,6 @@
 //     });
 
 // }
-
 
 // const success = () => {
 

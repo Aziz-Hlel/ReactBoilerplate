@@ -1,4 +1,3 @@
-export type SignUpResponseDto = {
-  accessToken: string;
-  refreshToken: string;
-};
+import type { User } from "../user/user";
+
+export type SignUpResponseDto = User;

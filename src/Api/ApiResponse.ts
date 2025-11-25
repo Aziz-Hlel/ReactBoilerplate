@@ -1,7 +1,3 @@
-
-
-
-
 type ApiSuccessResponse<T> = {
   success: true;
   message: string;

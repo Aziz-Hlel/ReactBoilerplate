@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -8,30 +8,29 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Controller, type UseFormReturn } from "react-hook-form"
-import type { SignInRequestDto } from "@/types/auth/SignInRequestDto"
-import { Link } from "react-router-dom"
-
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Controller, type UseFormReturn } from "react-hook-form";
+import type { SignInRequestDto } from "@/types/auth/SignInRequestDto";
+import { Link } from "react-router-dom";
 
 interface LoginFormProps {
   form: UseFormReturn<SignInRequestDto>;
-  onSubmit: (data: SignInRequestDto) => void
+  onSubmit: (data: SignInRequestDto) => void;
 }
 
-export function LoginForm({
-  form,
-  onSubmit
-}: LoginFormProps) {
-
-  const formId = "sign-in-form"
+export function LoginForm({ form, onSubmit }: LoginFormProps) {
+  const formId = "sign-in-form";
 
   return (
     <div className={cn("flex flex-col gap-6 w-1/2 ")}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8" id={formId} onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            className="p-6 md:p-8"
+            id={formId}
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -74,7 +73,6 @@ export function LoginForm({
                       >
                         Forgot your password?
                       </Link>
-
                     </FieldLabel>
                     <Input
                       {...field}
@@ -144,5 +142,5 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }

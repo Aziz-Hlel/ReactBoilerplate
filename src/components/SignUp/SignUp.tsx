@@ -1,12 +1,7 @@
-
-
 const SignUp = () => {
+  // const { form, onSubmit } = useSignUpForm();
 
-    // const { form, onSubmit } = useSignUpForm();
-    
-    return (
-        <div>SignUp</div>
-    )
-}
+  return <div>SignUp</div>;
+};
 
-export default SignUp
+export default SignUp;

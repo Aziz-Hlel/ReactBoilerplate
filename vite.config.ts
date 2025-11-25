@@ -12,11 +12,11 @@ function getPort(): number | undefined {
 
   if (!value && ["dev", "test"].includes(NODE_ENV))
     throw new Error(
-      `❌ Missing required VITE_WEB_PORT when NODE_ENV is ${NODE_ENV}`
+      `❌ Missing required VITE_WEB_PORT when NODE_ENV is ${NODE_ENV}`,
     );
   if (value && isNaN(Number(value)))
     throw new Error(
-      `❌ Invalid value for VITE_WEB_PORT: "${value}" is not a number`
+      `❌ Invalid value for VITE_WEB_PORT: "${value}" is not a number`,
     );
 
   return Number(value) || undefined;
@@ -38,7 +38,7 @@ export default ({ mode }: { mode: string }) => {
     },
 
     server: {
-      port:  9999,
+      port: 9999,
     },
   });
 };

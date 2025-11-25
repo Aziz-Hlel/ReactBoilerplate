@@ -8,14 +8,14 @@ import type { RefreshRequestDto } from "@/types/auth/RefreshRequestDto";
 
 export interface IauthService {
   signIn: (
-    payload: SignInRequestDto
+    payload: SignInRequestDto,
   ) => Promise<ApiResponse<SignInResponseDto>>;
 
   signUp: (
-    payload: FirebaseSignUpRequestSchema
+    payload: FirebaseSignUpRequestSchema,
   ) => Promise<ApiResponse<SignUpResponseDto>>;
   me: () => Promise<ApiResponse<User>>;
   refresh: (
-    payload: RefreshRequestDto
+    payload: RefreshRequestDto,
   ) => Promise<ApiResponse<SignInResponseDto>>;
 }

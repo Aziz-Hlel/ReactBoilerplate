@@ -19,7 +19,7 @@ const ENV_schema = z
     {
       path: ["VITE_WEB_PORT"], // points error to the right field
       message: "VITE_WEB_PORT is required in development or test environments",
-    }
+    },
   );
 
 const rawEnv = ENV_schema.parse(import.meta.env);

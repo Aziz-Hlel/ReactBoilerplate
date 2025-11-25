@@ -38,7 +38,7 @@ class ApiService {
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(error),
     );
 
     // Response interceptor - handle token refresh
@@ -79,7 +79,7 @@ class ApiService {
         }
 
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -114,12 +114,12 @@ class ApiService {
       `${this.api.defaults.baseURL}/user/refresh`,
       {
         refreshToken,
-      }
+      },
     );
 
     jwtTokenManager.setTokens(
       response.data.accessToken,
-      response.data.refreshToken
+      response.data.refreshToken,
     );
     return response.data.accessToken;
   }
@@ -127,7 +127,7 @@ class ApiService {
   // Wrapper methods with error handling
   async get<T>(
     url: string,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.get<ApiResponse<T>>(url, config);
@@ -157,7 +157,7 @@ class ApiService {
 
   async getThrowable<T>(
     url: string,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.get<ApiResponse<T>>(url, config);
@@ -189,7 +189,7 @@ class ApiService {
   async post<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.post<ApiResponse<T>>(url, data, config);
@@ -222,7 +222,7 @@ class ApiService {
   async postThrowable<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.post<ApiResponse<T>>(url, data, config);
@@ -255,7 +255,7 @@ class ApiService {
   async put<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
@@ -286,7 +286,7 @@ class ApiService {
   async putThrowable<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
@@ -316,7 +316,7 @@ class ApiService {
 
   async delete<T>(
     url: string,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);
@@ -346,7 +346,7 @@ class ApiService {
 
   async deleteThrowable<T>(
     url: string,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);

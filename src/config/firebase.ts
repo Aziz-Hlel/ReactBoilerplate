@@ -15,11 +15,11 @@ const firebaseConfig = {
   storageBucket: "uber-588cf.firebasestorage.app",
   messagingSenderId: "371351638566",
   appId: "1:371351638566:web:16c040ae9fb03d5382cce7",
-  measurementId: "G-DH71YEDZKQ"
+  measurementId: "G-DH71YEDZKQ",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-getAnalytics(app);    
+getAnalytics(app);
 
 export const firebaseAuth = getAuth(app);

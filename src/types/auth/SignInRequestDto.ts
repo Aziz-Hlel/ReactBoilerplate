@@ -11,5 +11,4 @@ export const singInSchema = z.object({
     .min(8, { message: "Password is too short, min 8 characters" }),
 });
 
-
 export type SignInRequestDto = z.infer<typeof singInSchema>;
