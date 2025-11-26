@@ -1,13 +1,13 @@
 import { apiService } from "../Api/apiService";
 import type { AxiosRequestConfig } from "axios";
 import { useQuery } from "@tanstack/react-query";
-import type { Pageable } from "../Api/types/Pageable";
+import type { Pageable } from "@/types/Pageable";
 
 interface UseApiOptions {
   url: string;
   queryParams?: Pageable;
-  onError?: (error: any, query: any) => void;
-  onSuccess?: (data: any) => void;
+  onError?: (error: unknown, query: unknown) => void;
+  onSuccess?: (data: unknown) => void;
   queryKey: string[];
   options: {
     enabled?: boolean;

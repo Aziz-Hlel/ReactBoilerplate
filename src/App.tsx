@@ -8,16 +8,18 @@ import Profile from "./pages/Profile";
 import { AuthProvider } from "./context/AuthContext";
 import SignIn from "./components/SignIn/SignIn";
 import ConnectivityRoute from "./guard/ConnectivityRoute";
+import { Toaster } from "sonner";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <>
+      <Toaster />
       <QueryClientProvider client={queryClient}>
-        <Router>
-          <AuthProvider>
-            <ConnectivityRoute>
+        <ConnectivityRoute>
+          <Router>
+            <AuthProvider>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/signin" element={<SignIn />} />
@@ -29,9 +31,9 @@ function App() {
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </ConnectivityRoute>
-          </AuthProvider>
-        </Router>
+            </AuthProvider>
+          </Router>
+        </ConnectivityRoute>
       </QueryClientProvider>
     </>
   );

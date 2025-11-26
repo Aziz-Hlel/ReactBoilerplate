@@ -10,7 +10,7 @@ const ENV_schema = z
   })
   .refine(
     (data) => {
-      // If env is not dev/test, then web port must exist
+      // If env is not dev/test, then web port must exist 
       if (["development", "test"].includes(data.VITE_NODE_ENV)) {
         return data.VITE_WEB_PORT !== undefined;
       }

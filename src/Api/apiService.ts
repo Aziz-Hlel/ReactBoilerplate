@@ -1,8 +1,9 @@
-import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 import ENV from "../config/env.variables";
 import { jwtTokenManager } from "./token/JwtTokenManager.class";
-import type { ApiResponse } from "./ApiResponse";
+import type { ApiResponse, ApiSuccessResponse } from "./ApiResponse";
+import { toast } from "sonner";
 
 const creatAxiosInstance = (): AxiosInstance => {
   return axios.create({
@@ -19,7 +20,7 @@ class ApiService {
   private isRefreshing = false;
   private failedQueue: Array<{
     resolve: (token: string) => void;
-    reject: (error: any) => void;
+    reject: (error: unknown) => void;
   }> = [];
 
   constructor() {
@@ -76,6 +77,8 @@ class ApiService {
           } finally {
             this.isRefreshing = false;
           }
+        } else {
+          this.throwErrorAlert(error.response?.status, error.message);
         }
 
         return Promise.reject(error);
@@ -84,7 +87,7 @@ class ApiService {
   }
 
   // Process failed request queue
-  private processQueue(error: any, token: string | null = null): void {
+  private processQueue(error: unknown, token: string | null = null): void {
     this.failedQueue.forEach(({ resolve, reject }) => {
       if (error) {
         reject(error);
@@ -100,6 +103,10 @@ class ApiService {
     // if (ENV.NODE_ENV === 'prod') return
     // alert(`Request failed with status ${statusCode} -\nerror message: ${error}`);
     // AlertInfo("Error", error);
+    console.log("t5l nyk ?");
+    toast.error(`Request failed with status ${statusCode} - ${error}`, {
+      description: `${error}`,
+    });
   };
 
   // Refresh access token
@@ -111,6 +118,18 @@ class ApiService {
     return newAccessToken;
   }
 
+  toApiResponse<T>(
+    response: AxiosResponse<ApiSuccessResponse<T>, unknown, object>
+  ): ApiResponse<T> {
+    const responseBody = response.data;
+    return {
+      data: responseBody.data,
+      status: response.status,
+      success: true,
+      message: responseBody.message,
+      timestamp: responseBody.timestamp,
+    };
+  }
   // Wrapper methods with error handling
   async get<T>(
     url: string,
@@ -122,15 +141,8 @@ class ApiService {
       if (response.data.success === false) {
         throw new Error();
       }
-      const responseBody = response.data;
-
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
+const a =response.data
+      return this.toApiResponse(response);
     } catch (error: any) {
       const apiErrorMessage =
         error.response?.data?.error || error.message || "Request failed";
