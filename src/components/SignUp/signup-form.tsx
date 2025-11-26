@@ -114,7 +114,7 @@ export function SignupForm() {
             </svg>
             Sign up with Google
           </Button>
-          <FieldDescription className="px-6 text-center">
+          <FieldDescription className="px-6 text-center ">
             Already have an account? <Link to="/signin">Sign in</Link>
           </FieldDescription>
         </Field>

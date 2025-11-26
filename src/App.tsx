@@ -7,17 +7,19 @@ import AuthenticatedRoutes from "./guard/AuthenticatedRoutes";
 import Profile from "./pages/Profile";
 import { AuthProvider } from "./context/AuthContext";
 import SignIn from "./components/SignIn/SignIn";
-import ConnectivityRoute from "./guard/ConnectivityRoute";
+import NetworkStatusGuard from "./guard/NetworkStatusGuard";
 import { Toaster } from "sonner";
+import { jwtTokenManager } from "./Api/token/JwtTokenManager.class";
 
 const queryClient = new QueryClient();
 
 function App() {
+  jwtTokenManager.getInitialAccessToken
   return (
     <>
       <Toaster />
       <QueryClientProvider client={queryClient}>
-        <ConnectivityRoute>
+        <NetworkStatusGuard>
           <Router>
             <AuthProvider>
               <Routes>
@@ -33,7 +35,7 @@ function App() {
               </Routes>
             </AuthProvider>
           </Router>
-        </ConnectivityRoute>
+        </NetworkStatusGuard>
       </QueryClientProvider>
     </>
   );

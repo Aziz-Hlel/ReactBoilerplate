@@ -46,7 +46,7 @@ export default () => {
     },
 
     server: {
-      port: !isNaN(Number(process.env.VITE_PORT)) ? Number(process.env.VITE_PORT) : 9998,
+      port: !isNaN(Number(process.env.VITE_PORT)) ? Number(process.env.VITE_PORT) : 9999,
     },
   });
 };
