@@ -19,6 +19,7 @@ export function SignupForm() {
 
   const formId = "sign-up-form";
   const isFormSubmitting = form.formState.isSubmitting;
+  const rootError = form.formState.errors.root;
   return (
     <form
       className={cn("flex flex-col gap-6")}
@@ -87,7 +88,7 @@ export function SignupForm() {
             </Field>
           )}
         />
-
+        <FieldError errors={[rootError]} />
         <Field>
           <Button type="submit" disabled={isFormSubmitting}>
             {isFormSubmitting ? (

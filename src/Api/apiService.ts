@@ -31,14 +31,14 @@ class ApiService {
   private setupInterceptors(): void {
     // Request interceptor - add auth header
     this.api.interceptors.request.use(
-      (config) => {
-        const token = jwtTokenManager.getAccessToken();
+      async (config) => {
+        const token = await jwtTokenManager.getInitialAccessToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => Promise.reject(error),
+      (error) => Promise.reject(error)
     );
 
     // Response interceptor - handle token refresh
@@ -79,7 +79,7 @@ class ApiService {
         }
 
         return Promise.reject(error);
-      },
+      }
     );
   }
 
@@ -104,30 +104,17 @@ class ApiService {
 
   // Refresh access token
   private async refreshAccessToken(): Promise<string> {
-    const refreshToken = jwtTokenManager.getRefreshToken();
-
-    if (!refreshToken) {
-      throw new Error("No refresh token available");
+    const newAccessToken = await jwtTokenManager.refreshAccessToken();
+    if (!newAccessToken) {
+      throw new Error("Failed to refresh access token");
     }
-
-    const response = await axios.post(
-      `${this.api.defaults.baseURL}/user/refresh`,
-      {
-        refreshToken,
-      },
-    );
-
-    jwtTokenManager.setTokens(
-      response.data.accessToken,
-      response.data.refreshToken,
-    );
-    return response.data.accessToken;
+    return newAccessToken;
   }
 
   // Wrapper methods with error handling
   async get<T>(
     url: string,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.get<ApiResponse<T>>(url, config);
@@ -157,9 +144,10 @@ class ApiService {
 
   async getThrowable<T>(
     url: string,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
+      console.log("sorm om l url: ", url);
       const response = await this.api.get<ApiResponse<T>>(url, config);
 
       if (response.data.success === false) {
@@ -175,6 +163,7 @@ class ApiService {
         timestamp: responseBody.timestamp,
       };
     } catch (error: any) {
+      console.log("l error ml lob", error);
       const apiErrorMessage =
         error.response?.data?.error || error.message || "Request failed";
 
@@ -189,7 +178,7 @@ class ApiService {
   async post<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.post<ApiResponse<T>>(url, data, config);
@@ -222,7 +211,7 @@ class ApiService {
   async postThrowable<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.post<ApiResponse<T>>(url, data, config);
@@ -255,7 +244,7 @@ class ApiService {
   async put<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
@@ -286,7 +275,7 @@ class ApiService {
   async putThrowable<T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
@@ -316,7 +305,7 @@ class ApiService {
 
   async delete<T>(
     url: string,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);
@@ -346,7 +335,7 @@ class ApiService {
 
   async deleteThrowable<T>(
     url: string,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);

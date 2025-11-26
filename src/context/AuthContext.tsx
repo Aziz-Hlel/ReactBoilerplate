@@ -1,14 +1,16 @@
-import type { ApiResponse } from "@/Api/ApiResponse";
-import { authService } from "@/Api/service/authService";
-import type { IauthService } from "@/Api/service/IauthService";
+import type { ApiErrorResponse, ApiResponse } from "@/Api/ApiResponse";
+import { authService, type IauthService } from "@/Api/service/authService";
 import { jwtTokenManager } from "@/Api/token/JwtTokenManager.class";
-import type { SignInRequestDto } from "@/types/auth/SignInRequestDto";
 import type { SignInResponseDto } from "@/types/auth/SignInResponseDto";
-import type { SignUpResponseDto } from "@/types/auth/SignUpResponseDto";
 import type { User } from "@/types/user/user";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { createContext, useMemo, useCallback, useContext } from "react";
-import { getAuth } from "firebase/auth";
+import {
+  createContext,
+  useMemo,
+  useCallback,
+  useContext,
+} from "react";
+import { useNavigate } from "react-router-dom";
 
 type AuthState =
   | { status: "loading"; user: null }
@@ -20,6 +22,7 @@ type IAuthContext = {
   user: User | null;
   signIn: IauthService["signIn"];
   signUp: IauthService["signUp"];
+  oAuthSignIn: IauthService["oAuthSignIn"];
   logout: () => void;
 };
 
@@ -29,125 +32,121 @@ const AUTH_QUERY_KEY = ["auth", "user"] as const;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const { data: authData, isLoading } = useQuery<ApiResponse<User>>({
+  const { data: currentUser, isLoading } = useQuery<User>({
     queryKey: AUTH_QUERY_KEY,
     queryFn: async () => {
-      const accessToken = jwtTokenManager.getAccessToken();
-      const refreshToken = jwtTokenManager.getRefreshToken();
+      const accessToken = await jwtTokenManager.getInitialAccessToken();
 
-      // No tokens at all - user is not authenticated
-      if (!accessToken && !refreshToken) {
+      if (!accessToken) {
         throw new Error("No authentication tokens");
       }
 
-      // Try to fetch user with access token
-      if (accessToken) {
-        try {
-          const response = await authService.me();
-          if (response.success) {
-            return response;
-          }
-        } catch (error) {
-          // Access token failed, will try refresh below
-          console.warn("Access token invalid, attempting refresh");
-        }
+      const response = await authService.me();
+      if (response.success) {
+        return response.data;
       }
 
-      // Access token missing or invalid - try refresh token
-      if (refreshToken) {
-        const refreshResponse = await authService.refresh({
-          refreshToken,
-        });
-
-        if (refreshResponse.success) {
-          jwtTokenManager.setTokens(
-            refreshResponse.data.accessToken,
-            refreshResponse.data.refreshToken,
-          );
-          // Fetch user data with new token
-          return await authService.me();
-        }
-      }
-
-      // Both tokens failed
-      jwtTokenManager.clearTokens();
-      throw new Error("Authentication failed");
+      throw new Error("Failed to fetch user data from backend");
     },
-    enabled:
-      !!jwtTokenManager.getAccessToken() || !!jwtTokenManager.getRefreshToken(),
-    retry: false, // Don't retry failed auth requests
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (formerly cacheTime)
+    retry: false,
+    // staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    // gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (formerly cacheTime)
   });
 
   const authState: AuthState = useMemo(() => {
     if (isLoading) {
       return { status: "loading", user: null };
     }
-    if (authData?.success && authData.data) {
-      return { status: "authenticated", user: authData.data };
+    if (currentUser) {
+      return { status: "authenticated", user: currentUser };
     }
     return { status: "unauthenticated", user: null };
-  }, [isLoading, authData]);
+  }, [isLoading, currentUser]);
 
   const signUpMutation = useMutation({
     mutationFn: authService.signUp,
     onSuccess: async (response) => {
       if (!response.success) return;
+      console.log("t5l l onsuccess");
       jwtTokenManager.setNewAccessToken();
+      await queryClient.setQueryData(AUTH_QUERY_KEY, response.data);
+
+      console.log("seta zok om l quey data");
     },
   });
 
-  const loginMutation = useMutation({
+  const signInMutation = useMutation({
     mutationFn: authService.signIn,
     onSuccess: (response) => {
       if (!response.success) return;
-      jwtTokenManager.setTokens(
-        response.data.accessToken,
-        response.data.refreshToken,
-      );
-      queryClient.setQueryData(AUTH_QUERY_KEY, response);
+      jwtTokenManager.setNewAccessToken();
+
+      queryClient.setQueryData(AUTH_QUERY_KEY, response.data);
     },
   });
 
-  const register: IauthService["signUp"] = useCallback(
+  const oAuthSignInMutation = useMutation({
+    mutationFn: authService.oAuthSignIn,
+    onSuccess: (response) => {
+      if (!response.success) return;
+      jwtTokenManager.setNewAccessToken();
+
+      queryClient.setQueryData(AUTH_QUERY_KEY, response.data);
+    },
+  });
+
+  const oAuthSignIn: IauthService["oAuthSignIn"] = useCallback(
     async (data) => {
       try {
-        return await signUpMutation.mutateAsync(data);
-      } catch (error) {
-        return error as ApiResponse<SignUpResponseDto>;
-      }
-    },
-    [signUpMutation],
-  );
-
-  const login: IauthService["signIn"] = useCallback(
-    async (data: SignInRequestDto) => {
-      try {
-        return await loginMutation.mutateAsync(data);
+        return await oAuthSignInMutation.mutateAsync(data);
       } catch (error) {
         return error as ApiResponse<SignInResponseDto>;
       }
     },
-    [loginMutation],
+    [oAuthSignInMutation]
+  );
+
+  const signUp: IauthService["signUp"] = useCallback(
+    async (data) => {
+      try {
+        return await signUpMutation.mutateAsync(data);
+      } catch (error) {
+        return error as ApiErrorResponse;
+      }
+    },
+    [signUpMutation]
+  );
+
+  const signIn: IauthService["signIn"] = useCallback(
+    async (data) => {
+      try {
+        return await signInMutation.mutateAsync(data);
+      } catch (error) {
+        return error as ApiResponse<SignInResponseDto>;
+      }
+    },
+    [signInMutation]
   );
 
   const logout = useCallback(() => {
     jwtTokenManager.clearTokens();
     queryClient.setQueryData(AUTH_QUERY_KEY, null);
     queryClient.removeQueries({ queryKey: AUTH_QUERY_KEY });
-  }, [queryClient]);
+    navigate("/");
+  }, [queryClient, navigate]);
 
   const contextValue = useMemo<IAuthContext>(
     () => ({
       authState,
       user: authState.user,
-      signIn: login,
-      signUp: register,
+      signIn,
+      signUp,
+      oAuthSignIn,
       logout,
     }),
-    [login, register, logout, authState],
+    [signIn, signUp, oAuthSignIn, logout, authState]
   );
 
   return (

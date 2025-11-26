@@ -18,29 +18,32 @@ const useSignUpForm = () => {
   const onSubmit = async (data: SignUpRequestSchema) => {
     try {
       // const response = await register(data);
-      const response = await firebaseService.createUserWithEmailAndPassword(
-        data.email,
-        data.password,
-      );
+      const firebaseResponse =
+        await firebaseService.createUserWithEmailAndPassword(
+          data.email,
+          data.password
+        );
 
-      if (response.success === false)
-        throw new Error("Failed to create user with Firebase");
+      if (firebaseResponse.success === false) {
+        Object.keys(firebaseResponse.error).map((key) => {
+          form.setError(key as keyof SignUpRequestSchema, {
+            type: "manual",
+            message: firebaseResponse.error[key],
+          });
+        });
+        throw new Error("Failed to create user with firebase");
+      }
 
-      const idToken = response.data;
+      const idToken = firebaseResponse.data;
 
       const signUpResponse = await signUp({
-        tokenId: idToken,
+        idToken: idToken,
       });
 
       if (signUpResponse.success === false)
         throw new Error("Failed to create user with backend");
 
-      console.log("good");
-      navigate("/");
-
-      // if (response.success) {
-      //   navigate("/");
-      // }
+      navigate("/profile");
     } catch (error) {
       console.log(error);
     }

@@ -2,12 +2,13 @@ import ENV from "@/config/env.variables";
 
 const apiRoutes = {
   baseUrl: () => ENV.BASE_URL,
-  // health: () => "/health" as const, // ! make this api
+  health: () => "/health" as const, // ! make this api
   auth: {
-    me: () => "/user/me" as const,
-    singIn: () => "/auth/login" as const,
+    me: () => "/auth/me" as const,
+    signIn: () => "/auth/login" as const,
     refresh: () => "/auth/refresh" as const,
-    signUp: () => "/users/register" as const,
+    signUp: () => "/auth/register" as const,
+    oAuthSignIn: () => "/auth/oauth/login" as const,
   },
 
   services: {

@@ -1,4 +1,4 @@
-type ApiSuccessResponse<T> = {
+export type ApiSuccessResponse<T> = {
   success: true;
   message: string;
   status: number;
@@ -7,7 +7,7 @@ type ApiSuccessResponse<T> = {
   metadata?: Record<string, unknown>;
 };
 
-type ApiErrorResponse = {
+export type ApiErrorResponse = {
   success: false;
   status: number;
   error: string;

@@ -1,55 +1,66 @@
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, type User } from "firebase/auth";
 
 class JwtTokenManager {
   private accessToken: string | null = null;
-  private refreshToken: string | null = null;
 
-  private refreshTokenKeyName = "refreshToken"; // jwt refresh token keyName in localStorage
-
-  private currentUser = getAuth().currentUser;
+  private userReadyPromise: Promise<User> | null = null;
+  private authenticatedUser: User | null = getAuth().currentUser;
+  private auth = getAuth();
 
   constructor() {
-    // Load refresh token from localStorage on app start
-    this.refreshToken = localStorage.getItem(this.refreshTokenKeyName);
+    // Initialize listener once
+    this.userReadyPromise = new Promise((resolve, reject) => {
+      onAuthStateChanged(this.auth, async (user) => {
+        if (user) {
+          this.authenticatedUser = user;
+          this.accessToken = await user.getIdToken(false);
+          resolve(user);
+        } else {
+          reject("No authenticated user");
+        }
+      });
+    });
   }
-
   // Set tokens in memory and localStorage
-  setTokens(access: string, refresh: string): void {
+  setAccessTokens(access: string): void {
     this.accessToken = access;
-    this.refreshToken = refresh;
-    localStorage.setItem(this.refreshTokenKeyName, refresh);
   }
 
   // Get access token from memory
   getAccessToken(): string | null {
+    console.log("access =", this.accessToken);
     return this.accessToken;
   }
 
-  // Get refresh token from memory or localStorage
-  getRefreshToken(): string | null {
-    return this.refreshToken;
+  async getInitialAccessToken(): Promise<string | null> {
+    if (this.accessToken || this.authenticatedUser) return this.accessToken;
+
+    if (this.userReadyPromise) {
+      const user = await this.userReadyPromise;
+      this.accessToken = await user.getIdToken(false);
+      return this.accessToken;
+    }
+
+    throw new Error("User not authenticated");
   }
 
-  // Load refresh token from localStorage on app start
-  loadTokensFromStorage(): void {
-    this.refreshToken = localStorage.getItem(this.refreshTokenKeyName);
+  async refreshAccessToken() {
+    const newIdToken = await this.authenticatedUser?.getIdToken(true);
+    this.accessToken = newIdToken || null;
+    return this.accessToken;
   }
 
   // Clear all tokens
   clearTokens(): void {
     this.accessToken = null;
-    this.refreshToken = null;
-    localStorage.removeItem(this.refreshTokenKeyName);
-  }
-
-  // Check if user is authenticated
-  refreshTokenExist(): boolean {
-    return !!this.getRefreshToken();
+    signOut(this.auth);
   }
 
   async setNewAccessToken() {
-    if (this.currentUser) {
-      this.accessToken = await this.currentUser.getIdToken(true);
+    if (this.authenticatedUser) {
+      this.accessToken = await this.authenticatedUser.getIdToken(true);
+      const idTokenResult = await this.authenticatedUser.getIdTokenResult(true);
+      console.log("User Claims:", idTokenResult.claims);
     }
   }
 }
