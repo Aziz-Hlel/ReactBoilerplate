@@ -45,7 +45,7 @@ const NetworkStatusGuard = ({ children }: { children: React.ReactNode }) => {
             icon: "text-red-600",
           }
         }
-      );// ! not a good practice for production
+      );
     });
 
 
