@@ -8,7 +8,7 @@ import { firebaseAuth } from "@/config/firebase";
 
 export type FirebaseError = {
   success: false;
-  error: Record<string, string>;
+  error: { root: string } | { email: string } | { password: string };
 };
 
 type FirebaseSuccess<T> = {
@@ -33,23 +33,19 @@ const mapFirebaseAuthError = (code: string): FirebaseError => {
       };
 
     // sign-in errors
-    case "auth/invalid-email":
-      return { success: false, error: { email: "Invalid email format." } };
-    case "auth/user-not-found":
-      return { success: false, error: { email: "No account found." } };
-    case "auth/wrong-password":
-      return { success: false, error: { password: "Incorrect password." } };
+    case "auth/invalid-credential":
+      return { success: false, error: { root: "Invalid email format." } };
     case "auth/user-disabled":
       return { success: false, error: { email: "This account is disabled." } };
     case "auth/too-many-requests":
       return {
         success: false,
-        error: { general: "Too many attempts. Try again later." },
+        error: { root: "Too many attempts. Try again later." },
       };
     default:
       return {
         success: false,
-        error: { general: "Unexpected authentication error." },
+        error: { root: "Unexpected authentication error." },
       };
   }
 };
@@ -57,25 +53,25 @@ const mapFirebaseAuthError = (code: string): FirebaseError => {
 const mapFirebaseOAuthError = (code: string): FirebaseError => {
   switch (code) {
     case "auth/popup-closed-by-user":
-      return { success: false, error: { general: "Popup closed." } };
+      return { success: false, error: { root: "Popup closed." } };
 
     case "auth/popup-blocked":
       return {
         success: false,
-        error: { general: "Popup blocked by browser." },
+        error: { root: "Popup blocked by browser." },
       };
 
     case "auth/cancelled-popup-request":
-      return { success: false, error: { general: "Login cancelled." } };
+      return { success: false, error: { root: "Login cancelled." } };
 
     case "auth/account-exists-with-different-credential":
       return {
         success: false,
-        error: { general: "Email already used with another provider." },
+        error: { root: "Email already used with another provider." },
       };
 
     default:
-      return { success: false, error: { general: "Google login failed." } };
+      return { success: false, error: { root: "Google login failed." } };
   }
 };
 
@@ -104,13 +100,13 @@ const firebaseService = {
       //   // Backend error
       //   return {
       //     success: false,
-      //     error: { general: "err.response.data.message" }, //! baddl,
+      //     error: { root: "err.response.data.message" }, //! baddl,
       //   };
       // }
 
       return {
         success: false,
-        error: { general: "An unexpected error occurred." as const },
+        error: { root: "An unexpected error occurred." as const },
       };
     }
   },
@@ -131,8 +127,11 @@ const firebaseService = {
 
       return { success: true, data: idToken };
     } catch (err: unknown) {
-      if (typeof err === "object" && err && "code" in err) {
-        return mapFirebaseAuthError(err.code as string);
+      console.log("ezebi l err ", err);
+
+      if (typeof err === "object" && err && "message" in err) {
+        console.log("l message :", JSON.stringify(err));
+        return mapFirebaseAuthError(err.message as string);
       }
 
       // if (typeof err === "object" && err && "response" in err
@@ -141,20 +140,19 @@ const firebaseService = {
       //   // Backend error
       //   return {
       //     success: false,
-      //     error: { general: (err as any).response.data.message },
+      //     error: { root: (err as any).response.data.message },
       //   };
       // }
 
       return {
         success: false,
-        error: { general: "Unexpected error occurred." },
+        error: { root: "Unexpected error occurred." },
       };
     }
   },
 
   loginWithGoogle: async (): Promise<FirebaseResponse<string>> => {
     try {
-
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
 
@@ -170,7 +168,7 @@ const firebaseService = {
       return {
         success: false,
         error: {
-          general: "An unexpected error occurred during Google Sign-In.",
+          root: "An unexpected error occurred during Google Sign-In.",
         },
       };
     }
