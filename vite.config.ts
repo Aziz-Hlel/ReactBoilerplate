@@ -1,29 +1,31 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
 
-// function getPort(): number | undefined {
-//   const NODE_ENV = process.env.VITE_NODE_ENV;
-//   if (!NODE_ENV)
-//     throw new Error(`❌ Missing required environment variable: NODE_ENV`);
+function getPort(mode: string): number | undefined {
+  const env = loadEnv(mode, process.cwd());
 
-//   const value = process.env.VITE_WEB_PORT;
+  const NODE_ENV = env.VITE_NODE_ENV;
+  if (!NODE_ENV)
+    throw new Error(`❌ Missing required environment variable: NODE_ENV`);
 
-//   if (!value && ["dev", "test"].includes(NODE_ENV))
-//     throw new Error(
-//       `❌ Missing required VITE_WEB_PORT when NODE_ENV is ${NODE_ENV}`,
-//     );
-//   if (value && isNaN(Number(value)))
-//     throw new Error(
-//       `❌ Invalid value for VITE_WEB_PORT: "${value}" is not a number`,
-//     );
+  const value = env.VITE_PORT;
 
-//   return Number(value) || undefined;
-// }
+  if (!value && ["dev", "test"].includes(NODE_ENV))
+    throw new Error(
+      `❌ Missing required VITE_PORT when NODE_ENV is ${NODE_ENV}`
+    );
+  if (value && isNaN(Number(value)))
+    throw new Error(
+      `❌ Invalid value for VITE_PORT: "${value}" is not a number`
+    );
 
-export default () => {
+  return Number(value) || undefined;
+}
+
+export default ({ mode }: { mode: string }) => {
   return defineConfig({
     envPrefix: "VITE_",
 
@@ -46,7 +48,7 @@ export default () => {
     },
 
     server: {
-      port: !isNaN(Number(process.env.VITE_PORT)) ? Number(process.env.VITE_PORT) : 9999,
+      port: getPort(mode),
     },
   });
 };

@@ -59,8 +59,6 @@ class JwtTokenManager {
   async setNewAccessToken() {
     if (this.authenticatedUser) {
       this.accessToken = await this.authenticatedUser.getIdToken(true);
-      const idTokenResult = await this.authenticatedUser.getIdTokenResult(true);
-      console.log("User Claims:", idTokenResult.claims);
     }
   }
 }

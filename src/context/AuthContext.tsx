@@ -134,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     jwtTokenManager.clearTokens();
     queryClient.setQueryData(AUTH_QUERY_KEY, null);
     queryClient.removeQueries({ queryKey: AUTH_QUERY_KEY });
-    navigate("/");
+    navigate("/signin");
   }, [queryClient, navigate]);
 
   const contextValue = useMemo<IAuthContext>(

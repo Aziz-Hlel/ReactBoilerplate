@@ -24,5 +24,6 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
     },
-  },
+    ignores: ["**/node_modules/**", "**/dist/**", "/src/components/ui/**"],
+  }
 );

@@ -16,7 +16,7 @@ const AuthenticatedRoutes = () => {
         <div className=" pr-5">Not logged in</div>{" "}
         <div
           className=" underline hover:cursor-pointer"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/signin")}
         >
           go Home
         </div>{" "}
