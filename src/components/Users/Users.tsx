@@ -113,7 +113,6 @@ const UsersTable = () => {
 
     const tableData = response?.success ? response?.data.content : [];
     const pagination = response?.success ? response?.data.pagination : { size: 0, number: 0, totalElements: 0, totalPages: 0 };
-
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
 
@@ -168,9 +167,9 @@ const UsersTable = () => {
     };
 
     const pageSize = useMemo(() => {
-        const page = Number(searchParams.get("limit"));
+        const page = Number(searchParams.get("size"));
         if (page < 1) {
-            searchParams.set("limit", "5");
+            searchParams.set("size", "5");
         }
         return page;
     }, [searchParams]);
@@ -199,10 +198,10 @@ const UsersTable = () => {
         });
     };
 
-    const onPageSizeChange = (limit: string) => {
+    const onPageSizeChange = (size: string) => {
         setSearchParams((prev) => {
             const params = new URLSearchParams(prev);
-            params.set("limit", String(limit));
+            params.set("size", String(size));
             params.set("page", "1");
             return params;
         });
@@ -216,13 +215,15 @@ const UsersTable = () => {
         getCoreRowModel: getCoreRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         state: {
-            sorting: sorting,
+            sorting,
             columnFilters,
             columnVisibility,
             rowSelection,
         },
     });
 
+    const isTablePopulated = table.getRowModel().rows?.length !== 0;
+    const areAllRowsFilled = isTablePopulated && table.getRowModel().rows?.length === pageSize;
     return (
         <>
             <div className="w-full">
@@ -276,7 +277,7 @@ const UsersTable = () => {
                             ))}
                         </TableHeader>
                         <TableBody>
-                            {table.getRowModel().rows?.length > 0 &&
+                            {isTablePopulated &&
                                 table.getRowModel().rows.map((row) => (
                                     <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                                         {row.getVisibleCells().map((cell) => (
@@ -285,9 +286,9 @@ const UsersTable = () => {
                                             </TableCell>
                                         ))}
                                     </TableRow>
+
                                 ))}
-                            {table.getRowModel().rows?.length !== 0 &&
-                                pageSize - table.getRowModel().rows?.length > 0 &&
+                            {!areAllRowsFilled &&
                                 Array.from({ length: pageSize - table.getRowModel().rows.length }).map(
                                     (_, index) => (
                                         <TableRow key={index}>
@@ -300,7 +301,7 @@ const UsersTable = () => {
                                         </TableRow>
                                     ),
                                 )}
-                            {table.getRowModel().rows?.length === 0 && (
+                            {!isTablePopulated && (
                                 <TableRow>
                                     <TableCell colSpan={columnsRows.length} className="h-24 text-center">
                                         No results.
