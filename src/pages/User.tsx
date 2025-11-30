@@ -1,5 +1,6 @@
 import { apiService } from "@/Api/apiService";
 import BreadcrumbHeader from "./Header";
+import UsersTable from "@/components/Users/Users";
 
 const UserPage = () => {
   apiService
@@ -18,10 +19,8 @@ const UserPage = () => {
           { title: "Profile", href: "/users/profile" },
         ]}
       />
-      <div className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex items-center gap-2 px-4"></div>
-        User Page
-      </div>
+
+      <UsersTable />
     </div>
   );
 };

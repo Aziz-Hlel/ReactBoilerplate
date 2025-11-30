@@ -34,7 +34,9 @@ import { useSearchParams } from "react-router-dom";
 import type { User } from "@/types/user/user";
 import userService from "@/Api/service/userService";
 
-const columnsRows: ColumnDef<User>[] = [
+type TableColumnDefinition<T> = ColumnDef<T, any> & { accessorKey: keyof T };
+
+const columnsRows: TableColumnDefinition<User>[] = [
     {
         accessorKey: "email",
         header: ({ column }) => {
@@ -56,77 +58,47 @@ const columnsRows: ColumnDef<User>[] = [
         enableHiding: true,
     },
     {
-        accessorKey: "firstName",
+        accessorKey: "username",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    First Name
+                    Username
                     {column.getIsSorted() === "asc" && <ArrowUp />}
                     {column.getIsSorted() === "desc" && <ArrowUp className="rotate-180" />}
                     {column.getIsSorted() === false && <ArrowUpDown />}
                 </Button>
             );
         },
-        cell: ({ row }) => <div className="uppercase">{row.getValue("firstName")}</div>,
+        cell: ({ row }) => <div className="">{row.getValue("username")}</div>,
 
         enableSorting: true,
         enableHiding: true,
     },
     {
-        accessorKey: "lastName",
+        accessorKey: "role",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Last Name
+                    Role
                     {column.getIsSorted() === "asc" && <ArrowUp />}
                     {column.getIsSorted() === "desc" && <ArrowUp className="rotate-180" />}
                     {column.getIsSorted() === false && <ArrowUpDown />}
                 </Button>
             );
         },
-        cell: ({ row }) => <div className="uppercase">{row.getValue("lastName")}</div>,
+        cell: ({ row }) => <div className="">{row.getValue("role")}</div>,
 
         enableSorting: true,
         enableHiding: true,
     },
-    {
-        accessorKey: "gender",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Gender
-                    {column.getIsSorted() === "asc" && <ArrowUp />}
-                    {column.getIsSorted() === "desc" && <ArrowUp className="rotate-180" />}
-                    {column.getIsSorted() === false && <ArrowUpDown />}
-                </Button>
-            );
-        },
-        cell: ({ row }) => (
-            <div className="uppercase  text-start px-4">
-                {row.getValue("gender") === "M" ? "Male" : "Female"}
-            </div>
-        ),
-        enableSorting: true,
-        enableHiding: true,
-    },
-    {
-        accessorKey: "phoneNumber",
-        header: "Phone Number",
-        cell: ({ row }) => (
-            <div className="uppercase text-center">{row.getValue("phoneNumber") ?? "-"}</div>
-        ),
-        enableSorting: false,
-        enableHiding: true,
-    },
+
+
 ];
 
 const UsersTable = () => {
@@ -139,8 +111,8 @@ const UsersTable = () => {
 
 
 
-    const tableData = response?.success ? response?.data.data : [];
-    const pagination = response?.success ? response?.data.pagination : { limit: 0, page: 0, total: 0, totalPages: 0 };
+    const tableData = response?.success ? response?.data.content : [];
+    const pagination = response?.success ? response?.data.pagination : { size: 0, number: 0, totalElements: 0, totalPages: 0 };
 
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
@@ -215,9 +187,9 @@ const UsersTable = () => {
         if (pageIndex === 1 && direc === "prev") return;
         if (pageIndex === pagination.totalPages && direc === "next") return;
 
-        let newPage: number = pagination.page;
-        if (direc === "next") newPage = pagination.page + 1;
-        if (direc === "prev") newPage = pagination.page - 1;
+        let newPage: number = pagination.number;
+        if (direc === "next") newPage = pagination.number + 1;
+        if (direc === "prev") newPage = pagination.number - 1;
         if (typeof direc === "number") newPage = direc;
 
         setSearchParams((prev) => {
@@ -242,11 +214,7 @@ const UsersTable = () => {
         onSortingChange: onSortingChange,
         onColumnFiltersChange: onColumnFiltersChange,
         getCoreRowModel: getCoreRowModel(),
-        // getPaginationRowModel: getPaginationRowModel(),
-        // getSortedRowModel: getSortedRowModel(),
-        // getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
-        // onRowSelectionChange: setRowSelection,
         state: {
             sorting: sorting,
             columnFilters,
@@ -346,8 +314,8 @@ const UsersTable = () => {
                     <div className="text-muted-foreground flex-1 text-sm">
                         {/* {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected. */}
-                        Showing {pagination.limit * (pagination.page - 1) + 1}-
-                        {pagination.limit * (pagination.page - 1) + tableData.length} of {pagination.total}{" "}
+                        Showing {pagination.size * (pagination.number - 1) + 1}-
+                        {pagination.size * (pagination.number - 1) + tableData.length} of {pagination.totalElements}{" "}
                         results
                     </div>
                     <Select onValueChange={onPageSizeChange} value={String(pageSize)}>
@@ -376,7 +344,7 @@ const UsersTable = () => {
                         {[...Array(pagination.totalPages)].map((_, index) => (
                             <Button
                                 key={index}
-                                variant={pagination.page === index + 1 ? "default" : "outline"}
+                                variant={pagination.number === index + 1 ? "default" : "outline"}
                                 size="sm"
                                 onClick={() => changePage(index + 1)}
                             >

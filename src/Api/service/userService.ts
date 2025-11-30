@@ -5,15 +5,15 @@ import apiRoutes from "../routes/routes";
 const userService = {
   getUsers: async (searchParams: URLSearchParams) =>
     apiService.getThrowable<{
-      data: User[];
+      content: User[];
       pagination: {
-        page: number;
-        limit: number;
-        total: number;
+        number: number;
+        size: number;
+        totalElements: number;
         totalPages: number;
       };
     }>(apiRoutes.users.getUsers(), {
-      params: searchParams.toString(),
+      params: searchParams,
     }),
 };
 

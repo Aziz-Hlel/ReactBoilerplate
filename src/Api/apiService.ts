@@ -15,6 +15,9 @@ const creatAxiosInstance = (): AxiosInstance => {
   });
 };
 
+type CustomAxiosRequestOptions = AxiosRequestConfig & {
+  params?: Record<string, any>;
+};
 class ApiService {
   private api: AxiosInstance;
   private isRefreshing = false;
@@ -119,7 +122,7 @@ class ApiService {
   }
 
   toApiResponse<T>(
-    response: AxiosResponse<ApiSuccessResponse<T>, unknown, object>
+    response: AxiosResponse<ApiSuccessResponse<T>, any, {}>
   ): ApiResponse<T> {
     const responseBody = response.data;
     return {
@@ -139,10 +142,13 @@ class ApiService {
       const response = await this.api.get<ApiResponse<T>>(url, config);
 
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
-const a =response.data
-      return this.toApiResponse(response);
+      return this.toApiResponse(
+        response as AxiosResponse<ApiSuccessResponse<T>>
+      );
     } catch (error: any) {
       const apiErrorMessage =
         error.response?.data?.error || error.message || "Request failed";
@@ -156,15 +162,17 @@ const a =response.data
 
   async getThrowable<T>(
     url: string,
-    config?: AxiosRequestConfig
+    config?: CustomAxiosRequestOptions
   ): Promise<ApiResponse<T>> {
     try {
-      console.log("sorm om l url: ", url);
       const response = await this.api.get<ApiResponse<T>>(url, config);
-
+      console.log("ousil b3d response");
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
+      console.log("ousil wel resonse data =", response.data);
       const responseBody = response.data;
 
       return {
@@ -196,7 +204,9 @@ const a =response.data
       const response = await this.api.post<ApiResponse<T>>(url, data, config);
 
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
       const responseBody = response.data;
 
@@ -229,7 +239,9 @@ const a =response.data
       const response = await this.api.post<ApiResponse<T>>(url, data, config);
 
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
       const responseBody = response.data;
 
@@ -261,7 +273,9 @@ const a =response.data
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
       const responseBody = response.data;
 
@@ -292,7 +306,9 @@ const a =response.data
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
       const responseBody = response.data;
 
@@ -322,7 +338,9 @@ const a =response.data
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
       const responseBody = response.data;
 
@@ -352,7 +370,9 @@ const a =response.data
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);
       if (response.data.success === false) {
-        throw new Error();
+        throw new Error(
+          "Success field false, this sohuld never happens in a successful request"
+        );
       }
       const responseBody = response.data;
 
