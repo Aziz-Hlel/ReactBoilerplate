@@ -14,6 +14,7 @@ import { Controller, type UseFormReturn } from "react-hook-form";
 import type { SignInRequestDto } from "@/types/auth/SignInRequestDto";
 import { Link } from "react-router-dom";
 import useLoginWithGoogle from "@/hooks/use-login-with-google";
+import { Spinner } from "../ui/spinner";
 
 interface LoginFormProps {
   form: UseFormReturn<SignInRequestDto>;
@@ -24,6 +25,8 @@ export function LoginForm({ form, onSubmit }: LoginFormProps) {
   const formId = "sign-in-form";
 
   const { loginWithGoogle } = useLoginWithGoogle();
+  const isFormSubmitting = form.formState.isSubmitting;
+  const rootError = form.formState.errors.root;
 
   return (
     <div className={cn("flex flex-col gap-6 w-1/2 ")}>
@@ -89,8 +92,16 @@ export function LoginForm({ form, onSubmit }: LoginFormProps) {
                 )}
               />
 
+              <FieldError errors={[rootError]} />
+
               <Field>
-                <Button type="submit">Login</Button>
+                {isFormSubmitting ?
+                  <Button disabled>
+                    <Spinner />
+                    Loading...
+                  </Button>
+                  : <Button type="submit">Login</Button>
+                }
               </Field>
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">

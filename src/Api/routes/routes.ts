@@ -10,6 +10,9 @@ const apiRoutes = {
     signUp: () => "/auth/register" as const,
     oAuthSignIn: () => "/auth/oauth/login" as const,
   },
+  users: {
+    getUsers: () => "/users" as const,
+  },
 
   services: {
     emailContactUs: () => "/services/email/contact-us" as const,

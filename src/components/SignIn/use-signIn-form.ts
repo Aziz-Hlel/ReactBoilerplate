@@ -25,12 +25,7 @@ const useSignInForm = () => {
       );
 
       if (firebaseResponse.success === false) {
-        Object.keys(firebaseResponse.error).map((key) => {
-          form.setError(key as keyof SignInRequestDto, {
-            type: "manual",
-            message: firebaseResponse.error[key],
-          });
-        });
+        form.setError(...firebaseResponse.error);
         throw new Error("Failed to sign in with firebase");
       }
 

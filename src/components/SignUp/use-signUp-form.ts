@@ -25,12 +25,7 @@ const useSignUpForm = () => {
         );
 
       if (firebaseResponse.success === false) {
-        Object.keys(firebaseResponse.error).map((key) => {
-          form.setError(key as keyof SignUpRequestSchema, {
-            type: "manual",
-            message: firebaseResponse.error[key],
-          });
-        });
+        form.setError(...firebaseResponse.error);
         throw new Error("Failed to create user with firebase");
       }
 

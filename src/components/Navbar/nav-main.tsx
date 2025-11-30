@@ -82,11 +82,11 @@ export function NavMain() {
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
-        {navRoutes.map((navRoute) =>
+        {navRoutes.map((navRoute, index) =>
           navRoute.items && navRoute.items.length > 0 ? (
-            <NestedRoute route={navRoute as INestedRoute} />
+            <NestedRoute route={navRoute as INestedRoute} key={index} />
           ) : (
-            <SimpleRoute route={navRoute} />
+            <SimpleRoute route={navRoute} key={index} />
           )
         )}
       </SidebarMenu>
@@ -112,7 +112,7 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
       >
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
-            <SidebarMenuButton tooltip={route.title}>
+            <SidebarMenuButton >
               <route.icon />
               <span>{route.title}</span>
               <ChevronRight className="ml-auto transition-transform duration-200 group-open:rotate-90 group-data-[state=open]/collapsible:rotate-90" />
@@ -121,8 +121,8 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
 
           <CollapsibleContent>
             <SidebarMenuSub>
-              {route.items?.map((subItem) => (
-                <SidebarMenuSubItem key={subItem.title}>
+              {route.items?.map((subItem, subIndex) => (
+                <SidebarMenuSubItem key={subIndex}>
                   <SidebarMenuSubButton
                     asChild
                     aria-disabled={!subItem.isActive}
@@ -141,7 +141,7 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
 
   return (
     <DropdownMenu key={route.title}>
-      <SidebarMenuItem>
+      <SidebarMenuItem >
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton tooltip={route.title}>
             <route.icon />
@@ -154,10 +154,10 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
           align={isMobile ? "end" : "start"}
           className="min-w-56 rounded-lg"
         >
-          {route.items?.map((item) => (
+          {route.items?.map((item, itemIndex) => (
             <DropdownMenuItem
               asChild
-              key={item.title}
+              key={itemIndex}
               disabled={!item.isActive}
             >
               <Link to={item.url}>{item.title}</Link>
@@ -178,6 +178,7 @@ const SimpleRoute = ({ route }: { route: ISimpleRoute }) => {
         aria-disabled={!route.isActive}
         asChild
         className="cursor-pointer"
+        tooltip={route.title}
       >
         <Link to={route.url} className="flex items-center gap-2">
           <route.icon />

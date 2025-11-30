@@ -1,5 +1,6 @@
 import apiRoutes from "@/Api/routes/routes";
 import ENV from "@/config/env.variables";
+import toastWrapper from "@/utils/toastWrapper";
 import axios from "axios";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -36,14 +37,9 @@ const NetworkStatusGuard = ({ children }: { children: React.ReactNode }) => {
     })
     .catch((err) => {
       console.error("API connection failed:", err);
-      toast.error("API connection failed to connect to the server. ",
+      toastWrapper.error("API connection failed to connect to the server. ",
         {
-
           description: typeof err === 'string' ? err : JSON.stringify(err.message),
-          classNames: {
-            toast: "cursor-default",
-            icon: "text-red-600",
-          }
         }
       );
     });
