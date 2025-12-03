@@ -1,3 +1,3 @@
-import type { User } from "../user/user";
+import type { User } from '../user/user';
 
-export type SignInResponseDto = User
+export type SignInResponseDto = User;

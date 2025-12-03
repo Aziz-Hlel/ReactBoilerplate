@@ -1,22 +1,29 @@
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import axios from "axios";
-import ENV from "../config/env.variables";
-import { jwtTokenManager } from "./token/JwtTokenManager.class";
-import type { ApiResponse, ApiSuccessResponse } from "./ApiResponse";
-import { toast } from "sonner";
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
+import ENV from '../config/env.variables';
+import { jwtTokenManager } from './token/JwtTokenManager.class';
+import {
+  apiErrorResponseSchema,
+  apiSuccessResponseSchema,
+  type ApiErrorResponse,
+  type ApiResponse,
+  type ApiSuccessResponse,
+} from '../types/api/ApiResponse';
+import { toast } from 'sonner';
+import toastWrapper from '@/utils/toastWrapper';
 
 const creatAxiosInstance = (): AxiosInstance => {
   return axios.create({
     baseURL: ENV.BASE_URL,
     timeout: 10000,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   });
 };
 
 type CustomAxiosRequestOptions = AxiosRequestConfig & {
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
 };
 class ApiService {
   private api: AxiosInstance;
@@ -42,7 +49,7 @@ class ApiService {
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(error),
     );
 
     // Response interceptor - handle token refresh
@@ -75,17 +82,17 @@ class ApiService {
           } catch (refreshError) {
             this.processQueue(refreshError);
             jwtTokenManager.clearTokens();
-            window.location.href = "/login";
+            window.location.href = '/login';
             return Promise.reject(refreshError);
           } finally {
             this.isRefreshing = false;
           }
         } else {
-          this.throwErrorAlert(error.response?.status, error.message);
+          this.displayDevAlert(error.response?.status, error.message);
         }
 
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -102,12 +109,8 @@ class ApiService {
     this.failedQueue = [];
   }
 
-  private throwErrorAlert = (statusCode: number, error: string) => {
-    // if (ENV.NODE_ENV === 'prod') return
-    // alert(`Request failed with status ${statusCode} -\nerror message: ${error}`);
-    // AlertInfo("Error", error);
-    console.log("t5l nyk ?");
-    toast.error(`Request failed with status ${statusCode} - ${error}`, {
+  private displayDevAlert = (statusCode: number, error: string) => {
+    toastWrapper.dev.error(`Request failed with status ${statusCode} - ${error}`, {
       description: `${error}`,
     });
   };
@@ -116,14 +119,12 @@ class ApiService {
   private async refreshAccessToken(): Promise<string> {
     const newAccessToken = await jwtTokenManager.refreshAccessToken();
     if (!newAccessToken) {
-      throw new Error("Failed to refresh access token");
+      throw new Error('Failed to refresh access token');
     }
     return newAccessToken;
   }
 
-  toApiResponse<T>(
-    response: AxiosResponse<ApiSuccessResponse<T>, any, {}>
-  ): ApiResponse<T> {
+  toApiResponse<T>(response: AxiosResponse<ApiSuccessResponse<T>, unknown, object>): ApiResponse<T> {
     const responseBody = response.data;
     return {
       data: responseBody.data,
@@ -133,46 +134,99 @@ class ApiService {
       timestamp: responseBody.timestamp,
     };
   }
+
+  validateApiErrorSchema(response: ApiResponse<unknown>): response is ApiErrorResponse {
+    const parsed = apiErrorResponseSchema.safeParse(response);
+    if (parsed.success) {
+      return true;
+    }
+    toastWrapper.dev.Critical('Response is not of type ApiErrorResponse');
+    return false;
+  }
+
+  validateApiResponseSchema(data: ApiResponse<unknown>): void {
+    const parsedSchema = apiSuccessResponseSchema.safeParse(data);
+    if (!parsedSchema.success) {
+      toastWrapper.dev.Critical('API response schema validation failed');
+    }
+  }
+
+  handleApiErrorResponse(error: unknown): ApiErrorResponse {
+    if (typeof error !== 'object' && error === null) {
+      toastWrapper.dev.Critical('Unknown error, error is not an object or is null');
+      return {
+        status: 0,
+        success: false,
+        message: 'Unknown error occurred',
+        timestamp: new Date(),
+        path: '',
+      };
+    }
+
+    const isAxiosError = axios.isAxiosError(error);
+
+    if (isAxiosError && error.response) {
+      this.validateApiErrorSchema(error.response.data);
+      return error.response?.data as ApiErrorResponse;
+    } else if (isAxiosError && error.request) {
+      // ⚠️ No response received — network error or timeout
+      this.displayDevAlert(0, 'No response received from server — network error or timeout');
+      return {
+        status: 0,
+        success: false,
+        message: 'No response received from server',
+        timestamp: new Date(),
+        path: '',
+      };
+    } else {
+      // ⚠️ Something else went wrong setting up the request
+      toastWrapper.dev.Critical('Something else went wrong setting up the request');
+      return { status: 0, success: false, message: 'Request setup error', timestamp: new Date(), path: '' };
+    }
+  }
+
   // Wrapper methods with error handling
-  async get<T>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.get<ApiResponse<T>>(url, config);
 
-      if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
-      }
-      return this.toApiResponse(
-        response as AxiosResponse<ApiSuccessResponse<T>>
-      );
-    } catch (error: any) {
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
+      this.validateApiResponseSchema(response.data);
 
-      const status = error.response?.status;
-      if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
-
-      return { error: apiErrorMessage, status, success: false };
+      return this.toApiResponse(response as AxiosResponse<ApiSuccessResponse<T>>);
+    } catch (error: ApiErrorResponse | unknown) {
+      return this.handleApiErrorResponse(error);
     }
   }
 
-  async getThrowable<T>(
-    url: string,
-    config?: CustomAxiosRequestOptions
-  ): Promise<ApiResponse<T>> {
+  async getThrowable<T>(url: string, config?: CustomAxiosRequestOptions): Promise<ApiSuccessResponse<T>> {
+    // ! baddl zokom return type ApiSuccessResponse<T> ? defck 3la l containy l zouz wa9telli l eror throwable
     try {
-      const response = await this.api.get<ApiResponse<T>>(url, config);
-      console.log("ousil b3d response");
-      if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
-      }
-      console.log("ousil wel resonse data =", response.data);
+      const response = await this.api.get<ApiSuccessResponse<T>>(url, config);
+
+      this.validateApiResponseSchema(response.data);
+
+      console.log('ousil wel resonse data =', response.data);
+      const responseBody = response.data;
+
+      return {
+        data: responseBody.data,
+        status: response.status,
+        success: true,
+        message: responseBody.message,
+        timestamp: responseBody.timestamp,
+      };
+    } catch (error: ApiErrorResponse | unknown) {
+      const errorResponse = this.handleApiErrorResponse(error);
+      throw errorResponse;
+    }
+  }
+
+  async post<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.api.post<ApiSuccessResponse<T>>(url, data, config);
+
+      this.validateApiResponseSchema(response.data);
+
       const responseBody = response.data;
 
       return {
@@ -183,65 +237,23 @@ class ApiService {
         timestamp: responseBody.timestamp,
       };
     } catch (error: any) {
-      console.log("l error ml lob", error);
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
+      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
 
       const status = error.response?.status;
-
-      if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
-
-      throw { error: apiErrorMessage, status, success: false };
-    }
-  }
-
-  async post<T>(
-    url: string,
-    data: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
-    try {
-      const response = await this.api.post<ApiResponse<T>>(url, data, config);
-
-      if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
-      }
-      const responseBody = response.data;
-
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
-    } catch (error: any) {
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
-
-      const status = error.response?.status;
-      console.log("error : ", error);
-      console.log("status from the try catch : ", status);
+      console.log('error : ', error);
+      console.log('status from the try catch : ', status);
       // if (status !== 201 || status !== 200) this.throwErrorAlert(status, apiErrorMessage);
 
       return { error: apiErrorMessage, status: status ?? 401, success: false };
     }
   }
 
-  async postThrowable<T>(
-    url: string,
-    data: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  async postThrowable<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.post<ApiResponse<T>>(url, data, config);
 
       if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
+        throw new Error('Success field false, this should never happen in a successful request');
       }
       const responseBody = response.data;
 
@@ -253,29 +265,21 @@ class ApiService {
         timestamp: responseBody.timestamp,
       };
     } catch (error: any) {
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
+      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
 
       const status = error.response?.status;
 
-      if (status !== 201 || status !== 200)
-        this.throwErrorAlert(status, apiErrorMessage);
+      if (status !== 201 || status !== 200) this.displayDevAlert(status, apiErrorMessage);
 
       throw { error: apiErrorMessage, status, success: false };
     }
   }
 
-  async put<T>(
-    url: string,
-    data: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
       if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
+        throw new Error('Success field false, this sohuld never happens in a successful request');
       }
       const responseBody = response.data;
 
@@ -287,28 +291,21 @@ class ApiService {
         timestamp: responseBody.timestamp,
       };
     } catch (error: any) {
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
+      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
 
       const status = error.response?.status;
 
-      if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
+      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
 
       return { error: apiErrorMessage, status, success: false };
     }
   }
 
-  async putThrowable<T>(
-    url: string,
-    data: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  async putThrowable<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.put<ApiResponse<T>>(url, data, config);
       if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
+        throw new Error('Success field false, this sohuld never happens in a successful request');
       }
       const responseBody = response.data;
 
@@ -320,27 +317,21 @@ class ApiService {
         timestamp: responseBody.timestamp,
       };
     } catch (error: any) {
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
+      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
 
       const status = error.response?.status;
 
-      if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
+      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
 
       throw { error: apiErrorMessage, status, success: false };
     }
   }
 
-  async delete<T>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);
       if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
+        throw new Error('Success field false, this sohuld never happens in a successful request');
       }
       const responseBody = response.data;
 
@@ -352,27 +343,21 @@ class ApiService {
         timestamp: responseBody.timestamp,
       };
     } catch (error: any) {
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
+      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
 
       const status = error.response?.status;
 
-      if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
+      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
 
       return { error: apiErrorMessage, status, success: false };
     }
   }
 
-  async deleteThrowable<T>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  async deleteThrowable<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.delete<ApiResponse<T>>(url, config);
       if (response.data.success === false) {
-        throw new Error(
-          "Success field false, this sohuld never happens in a successful request"
-        );
+        throw new Error('Success field false, this sohuld never happens in a successful request');
       }
       const responseBody = response.data;
 
@@ -384,12 +369,11 @@ class ApiService {
         timestamp: responseBody.timestamp,
       };
     } catch (error: any) {
-      const apiErrorMessage =
-        error.response?.data?.error || error.message || "Request failed";
+      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
 
       const status = error.response?.status;
 
-      if (status !== 200) this.throwErrorAlert(status, apiErrorMessage);
+      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
 
       return { error: apiErrorMessage, status, success: false };
     }

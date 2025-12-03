@@ -1,5 +1,5 @@
-import useSignInForm from "./use-signIn-form";
-import { LoginForm } from "./sign-in-form";
+import useSignInForm from './use-signIn-form';
+import { LoginForm } from './sign-in-form';
 
 const SignIn = () => {
   const { form, onSubmit } = useSignInForm();

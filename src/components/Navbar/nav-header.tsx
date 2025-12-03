@@ -1,9 +1,5 @@
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { GalleryVerticalEnd } from "lucide-react";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { GalleryVerticalEnd } from 'lucide-react';
 
 export interface INavbarHeader {
   name: string;
@@ -12,9 +8,9 @@ export interface INavbarHeader {
 }
 
 const navbarHeader: INavbarHeader = {
-  name: "CodeNinja",
+  name: 'CodeNinja',
   logo: GalleryVerticalEnd,
-  plan: "Enterprise",
+  plan: 'Enterprise',
 };
 
 export function NavBarHeader() {

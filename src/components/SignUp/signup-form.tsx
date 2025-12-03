@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Field,
   FieldDescription,
@@ -7,27 +7,23 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import useSignUpForm from "./use-signUp-form";
-import { Controller } from "react-hook-form";
-import { Link } from "react-router-dom";
-import { Spinner } from "../ui/spinner";
-import useLoginWithGoogle from "@/hooks/use-login-with-google";
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import useSignUpForm from './use-signUp-form';
+import { Controller } from 'react-hook-form';
+import { Link } from 'react-router-dom';
+import { Spinner } from '../ui/spinner';
+import useLoginWithGoogle from '@/hooks/use-login-with-google';
 
 export function SignupForm() {
   const { form, onSubmit } = useSignUpForm();
   const { loginWithGoogle } = useLoginWithGoogle();
 
-  const formId = "sign-up-form";
+  const formId = 'sign-up-form';
   const isFormSubmitting = form.formState.isSubmitting;
   const rootError = form.formState.errors.root;
   return (
-    <form
-      className={cn("flex flex-col gap-6")}
-      id={formId}
-      onSubmit={form.handleSubmit(onSubmit)}
-    >
+    <form className={cn('flex flex-col gap-6')} id={formId} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center text-nowrap">
           <h1 className="text-2xl font-bold">Create your account</h1>
@@ -58,9 +54,7 @@ export function SignupForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={`${formId}-${field.name}`}>
-                Password
-              </FieldLabel>
+              <FieldLabel htmlFor={`${formId}-${field.name}`}>Password</FieldLabel>
               <Input
                 {...field}
                 id={`${formId}-${field.name}`}
@@ -77,9 +71,7 @@ export function SignupForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={`${formId}-${field.name}`}>
-                Confirm Password
-              </FieldLabel>
+              <FieldLabel htmlFor={`${formId}-${field.name}`}>Confirm Password</FieldLabel>
               <Input
                 {...field}
                 id={`${formId}-${field.name}`}

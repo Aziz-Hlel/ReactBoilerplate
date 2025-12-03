@@ -1,6 +1,6 @@
-import { AppSidebar } from "@/components/Navbar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Outlet } from "react-router-dom";
+import { AppSidebar } from '@/components/Navbar/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Outlet } from 'react-router-dom';
 
 const Sidebar = () => {
   return (

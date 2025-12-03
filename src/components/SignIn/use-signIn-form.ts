@@ -1,12 +1,9 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  type SignInRequestDto,
-  singInSchema,
-} from "@/types/auth/SignInRequestDto";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import firebaseService from "@/Api/service/firebaseService";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type SignInRequestDto, singInSchema } from '@/types/auth/SignInRequestDto';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import firebaseService from '@/Api/service/firebaseService';
 
 const useSignInForm = () => {
   const form = useForm<SignInRequestDto>({
@@ -21,12 +18,12 @@ const useSignInForm = () => {
     try {
       const firebaseResponse = await firebaseService.signInWithEmailAndPassword(
         data.email,
-        data.password
+        data.password,
       );
 
       if (firebaseResponse.success === false) {
         form.setError(...firebaseResponse.error);
-        throw new Error("Failed to sign in with firebase");
+        throw new Error('Failed to sign in with firebase');
       }
 
       const idToken = firebaseResponse.data;
@@ -36,10 +33,10 @@ const useSignInForm = () => {
       });
 
       if (response.success === false) {
-        throw new Error("Failed to sign in with backend");
+        throw new Error('Failed to sign in with backend');
       }
 
-      navigate("/profile");
+      navigate('/profile');
     } catch (error) {
       console.log(error);
     }

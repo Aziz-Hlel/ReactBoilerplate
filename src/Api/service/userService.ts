@@ -1,6 +1,6 @@
-import type { User } from "@/types/user/user";
-import { apiService } from "../apiService";
-import apiRoutes from "../routes/routes";
+import type { User } from '@/types/user/user';
+import { apiService } from '../apiService';
+import apiRoutes from '../routes/routes';
 
 const userService = {
   getUsers: async (searchParams: URLSearchParams) =>

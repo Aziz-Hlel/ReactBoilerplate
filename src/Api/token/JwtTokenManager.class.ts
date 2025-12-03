@@ -1,4 +1,4 @@
-import { getAuth, onAuthStateChanged, signOut, type User } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, type User } from 'firebase/auth';
 
 class JwtTokenManager {
   private accessToken: string | null = null;
@@ -16,7 +16,7 @@ class JwtTokenManager {
           this.accessToken = await user.getIdToken(false);
           resolve(user);
         } else {
-          reject("No authenticated user");
+          reject('No authenticated user');
         }
       });
     });
@@ -28,7 +28,7 @@ class JwtTokenManager {
 
   // Get access token from memory
   getAccessToken(): string | null {
-    console.log("access =", this.accessToken);
+    console.log('access =', this.accessToken);
     return this.accessToken;
   }
 
@@ -41,7 +41,7 @@ class JwtTokenManager {
       return this.accessToken;
     }
 
-    throw new Error("User not authenticated");
+    throw new Error('User not authenticated');
   }
 
   async refreshAccessToken() {

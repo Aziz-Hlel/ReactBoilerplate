@@ -1,0 +1,42 @@
+# Dependency folders
+node_modules
+**/node_modules
+
+# Build artifacts
+dist
+build
+target
+**/dist
+**/build
+**/target
+
+# Environment / secrets
+.env
+.env.*
+*.env
+*.env.*
+
+
+
+# Package manager artifacts
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Java build output
+*.jar
+*.class
+
+# Logs and temp
+*.log
+backup/
+tmp/
+.cache/
+
+# Flyway baseline (not source formatted)
+**/V1__baseline.sql
+
+# IDE / system files
+.vscode/
+.idea/
+.DS_Store

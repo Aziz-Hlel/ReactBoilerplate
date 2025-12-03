@@ -1,14 +1,5 @@
-import {
-  ChevronRight,
-  LayoutDashboard,
-  Settings2,
-  UsersRound,
-} from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { ChevronRight, LayoutDashboard, Settings2, UsersRound } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -19,58 +10,58 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
-import type { Prettify } from "node_modules/zod/v4/core/util.d.cts";
+} from '@/components/ui/sidebar';
+import { Link } from 'react-router-dom';
+import type { Prettify } from 'node_modules/zod/v4/core/util.d.cts';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from '../ui/dropdown-menu';
 
 type NavRoute = {
   title: string;
   url: string;
   icon: React.ElementType;
   isActive: boolean;
-  items?: Omit<NavRoute, "items" | "icon">[];
+  items?: Omit<NavRoute, 'items' | 'icon'>[];
 };
 
 const navRoutes: NavRoute[] = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
+    title: 'Dashboard',
+    url: '/dashboard',
     icon: LayoutDashboard,
     isActive: true,
     items: [
       {
-        title: "Overview",
-        url: "/dashboard/overview",
+        title: 'Overview',
+        url: '/dashboard/overview',
         isActive: true,
       },
       {
-        title: "Stats",
-        url: "/dashboard/stats",
+        title: 'Stats',
+        url: '/dashboard/stats',
         isActive: false,
       },
     ],
   },
   {
-    title: "Users",
-    url: "/users",
+    title: 'Users',
+    url: '/users',
     icon: UsersRound,
     isActive: true,
   },
   {
-    title: "Settings",
-    url: "/settings",
+    title: 'Settings',
+    url: '/settings',
     icon: Settings2,
     isActive: true,
     items: [
       {
-        title: "Profile",
-        url: "/settings/profile",
+        title: 'Profile',
+        url: '/settings/profile',
         isActive: true,
       },
     ],
@@ -87,7 +78,7 @@ export function NavMain() {
             <NestedRoute route={navRoute as INestedRoute} key={index} />
           ) : (
             <SimpleRoute route={navRoute} key={index} />
-          )
+          ),
         )}
       </SidebarMenu>
     </SidebarGroup>
@@ -95,14 +86,14 @@ export function NavMain() {
 }
 
 type INestedRoute = Prettify<
-  Omit<NavRoute, "items"> & {
-    items: Omit<NavRoute, "items" | "icon">[];
+  Omit<NavRoute, 'items'> & {
+    items: Omit<NavRoute, 'items' | 'icon'>[];
   }
 >;
 const NestedRoute = ({ route }: { route: INestedRoute }) => {
   const { isMobile, state } = useSidebar();
 
-  if (state === "expanded")
+  if (state === 'expanded')
     return (
       <Collapsible
         key={route.title}
@@ -112,7 +103,7 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
       >
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
-            <SidebarMenuButton >
+            <SidebarMenuButton>
               <route.icon />
               <span>{route.title}</span>
               <ChevronRight className="ml-auto transition-transform duration-200 group-open:rotate-90 group-data-[state=open]/collapsible:rotate-90" />
@@ -123,10 +114,7 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
             <SidebarMenuSub>
               {route.items?.map((subItem, subIndex) => (
                 <SidebarMenuSubItem key={subIndex}>
-                  <SidebarMenuSubButton
-                    asChild
-                    aria-disabled={!subItem.isActive}
-                  >
+                  <SidebarMenuSubButton asChild aria-disabled={!subItem.isActive}>
                     <Link to={subItem.url}>
                       <span>{subItem.title}</span>
                     </Link>
@@ -141,7 +129,7 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
 
   return (
     <DropdownMenu key={route.title}>
-      <SidebarMenuItem >
+      <SidebarMenuItem>
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton tooltip={route.title}>
             <route.icon />
@@ -150,16 +138,12 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          side={isMobile ? "bottom" : "right"}
-          align={isMobile ? "end" : "start"}
+          side={isMobile ? 'bottom' : 'right'}
+          align={isMobile ? 'end' : 'start'}
           className="min-w-56 rounded-lg"
         >
           {route.items?.map((item, itemIndex) => (
-            <DropdownMenuItem
-              asChild
-              key={itemIndex}
-              disabled={!item.isActive}
-            >
+            <DropdownMenuItem asChild key={itemIndex} disabled={!item.isActive}>
               <Link to={item.url}>{item.title}</Link>
             </DropdownMenuItem>
           ))}
@@ -169,7 +153,7 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
   );
 };
 
-type ISimpleRoute = Omit<NavRoute, "items">;
+type ISimpleRoute = Omit<NavRoute, 'items'>;
 
 const SimpleRoute = ({ route }: { route: ISimpleRoute }) => {
   return (
