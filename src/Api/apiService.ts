@@ -9,7 +9,6 @@ import {
   type ApiResponse,
   type ApiSuccessResponse,
 } from '../types/api/ApiResponse';
-import { toast } from 'sonner';
 import toastWrapper from '@/utils/toastWrapper';
 
 const creatAxiosInstance = (): AxiosInstance => {
@@ -87,9 +86,11 @@ class ApiService {
           } finally {
             this.isRefreshing = false;
           }
-        } else {
-          this.displayDevAlert(error.response?.status, error.message);
         }
+        // * disabled for now mainly to reduce noise, not the greatest placement for alerting
+        //  else {
+        //   this.displayDevAlert(error.response?.status, error.response?.data?.message || error.message);
+        // }
 
         return Promise.reject(error);
       },
@@ -110,7 +111,7 @@ class ApiService {
   }
 
   private displayDevAlert = (statusCode: number, error: string) => {
-    toastWrapper.dev.error(`Request failed with status ${statusCode} - ${error}`, {
+    toastWrapper.dev.error(`Request failed with status ${statusCode}`, {
       description: `${error}`,
     });
   };
@@ -124,7 +125,7 @@ class ApiService {
     return newAccessToken;
   }
 
-  toApiResponse<T>(response: AxiosResponse<ApiSuccessResponse<T>, unknown, object>): ApiResponse<T> {
+  toApiSuccessResponse<T>(response: AxiosResponse<ApiSuccessResponse<T>, unknown, object>): ApiSuccessResponse<T> {
     const responseBody = response.data;
     return {
       data: responseBody.data,
@@ -170,7 +171,7 @@ class ApiService {
       return error.response?.data as ApiErrorResponse;
     } else if (isAxiosError && error.request) {
       // ⚠️ No response received — network error or timeout
-      this.displayDevAlert(0, 'No response received from server — network error or timeout');
+      this.displayDevAlert(NaN, 'No response received from server — network error or timeout');
       return {
         status: 0,
         success: false,
@@ -188,194 +189,108 @@ class ApiService {
   // Wrapper methods with error handling
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
-      const response = await this.api.get<ApiResponse<T>>(url, config);
+      const response = await this.api.get<ApiSuccessResponse<T>>(url, config);
 
       this.validateApiResponseSchema(response.data);
 
-      return this.toApiResponse(response as AxiosResponse<ApiSuccessResponse<T>>);
+      return this.toApiSuccessResponse(response);
     } catch (error: ApiErrorResponse | unknown) {
       return this.handleApiErrorResponse(error);
     }
   }
 
   async getThrowable<T>(url: string, config?: CustomAxiosRequestOptions): Promise<ApiSuccessResponse<T>> {
-    // ! baddl zokom return type ApiSuccessResponse<T> ? defck 3la l containy l zouz wa9telli l eror throwable
     try {
       const response = await this.api.get<ApiSuccessResponse<T>>(url, config);
 
       this.validateApiResponseSchema(response.data);
 
-      console.log('ousil wel resonse data =', response.data);
-      const responseBody = response.data;
-
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
+      return this.toApiSuccessResponse(response);
     } catch (error: ApiErrorResponse | unknown) {
       const errorResponse = this.handleApiErrorResponse(error);
       throw errorResponse;
     }
   }
 
-  async post<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data: unknown, config?: CustomAxiosRequestOptions): Promise<ApiSuccessResponse<T>> {
     try {
       const response = await this.api.post<ApiSuccessResponse<T>>(url, data, config);
 
       this.validateApiResponseSchema(response.data);
 
-      const responseBody = response.data;
-
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
-    } catch (error: any) {
-      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
-
-      const status = error.response?.status;
-      console.log('error : ', error);
-      console.log('status from the try catch : ', status);
-      // if (status !== 201 || status !== 200) this.throwErrorAlert(status, apiErrorMessage);
-
-      return { error: apiErrorMessage, status: status ?? 401, success: false };
+      return this.toApiSuccessResponse(response);
+    } catch (error: ApiErrorResponse | unknown) {
+      const errorResponse = this.handleApiErrorResponse(error);
+      throw errorResponse;
     }
   }
 
-  async postThrowable<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async postThrowable<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>> {
     try {
-      const response = await this.api.post<ApiResponse<T>>(url, data, config);
+      const response = await this.api.post<ApiSuccessResponse<T>>(url, data, config);
 
-      if (response.data.success === false) {
-        throw new Error('Success field false, this should never happen in a successful request');
-      }
-      const responseBody = response.data;
+      this.validateApiResponseSchema(response.data);
 
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
-    } catch (error: any) {
-      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
-
-      const status = error.response?.status;
-
-      if (status !== 201 || status !== 200) this.displayDevAlert(status, apiErrorMessage);
-
-      throw { error: apiErrorMessage, status, success: false };
+      return this.toApiSuccessResponse(response);
+    } catch (error: ApiErrorResponse | unknown) {
+      const errorResponse = this.handleApiErrorResponse(error);
+      throw errorResponse;
     }
   }
 
-  async put<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data: unknown, config?: CustomAxiosRequestOptions): Promise<ApiResponse<T>> {
     try {
-      const response = await this.api.put<ApiResponse<T>>(url, data, config);
-      if (response.data.success === false) {
-        throw new Error('Success field false, this sohuld never happens in a successful request');
-      }
-      const responseBody = response.data;
+      const response = await this.api.put<ApiSuccessResponse<T>>(url, data, config);
 
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
-    } catch (error: any) {
-      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
+      this.validateApiResponseSchema(response.data);
 
-      const status = error.response?.status;
-
-      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
-
-      return { error: apiErrorMessage, status, success: false };
+      return this.toApiSuccessResponse(response);
+    } catch (error: ApiErrorResponse | unknown) {
+      const errorResponse = this.handleApiErrorResponse(error);
+      return errorResponse;
     }
   }
 
-  async putThrowable<T>(url: string, data: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async putThrowable<T>(
+    url: string,
+    data: unknown,
+    config?: CustomAxiosRequestOptions,
+  ): Promise<ApiSuccessResponse<T>> {
     try {
-      const response = await this.api.put<ApiResponse<T>>(url, data, config);
-      if (response.data.success === false) {
-        throw new Error('Success field false, this sohuld never happens in a successful request');
-      }
-      const responseBody = response.data;
+      const response = await this.api.put<ApiSuccessResponse<T>>(url, data, config);
 
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
-    } catch (error: any) {
-      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
+      this.validateApiResponseSchema(response.data);
 
-      const status = error.response?.status;
-
-      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
-
-      throw { error: apiErrorMessage, status, success: false };
+      return this.toApiSuccessResponse(response);
+    } catch (error: ApiErrorResponse | unknown) {
+      const errorResponse = this.handleApiErrorResponse(error);
+      throw errorResponse;
     }
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T>(url: string, config?: CustomAxiosRequestOptions): Promise<ApiResponse<T>> {
     try {
-      const response = await this.api.delete<ApiResponse<T>>(url, config);
-      if (response.data.success === false) {
-        throw new Error('Success field false, this sohuld never happens in a successful request');
-      }
-      const responseBody = response.data;
+      const response = await this.api.delete<ApiSuccessResponse<T>>(url, config);
 
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
-    } catch (error: any) {
-      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
+      this.validateApiResponseSchema(response.data);
 
-      const status = error.response?.status;
-
-      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
-
-      return { error: apiErrorMessage, status, success: false };
+      return this.toApiSuccessResponse(response);
+    } catch (error: ApiErrorResponse | unknown) {
+      const errorResponse = this.handleApiErrorResponse(error);
+      return errorResponse;
     }
   }
 
-  async deleteThrowable<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async deleteThrowable<T>(url: string, config?: CustomAxiosRequestOptions): Promise<ApiSuccessResponse<T>> {
     try {
-      const response = await this.api.delete<ApiResponse<T>>(url, config);
-      if (response.data.success === false) {
-        throw new Error('Success field false, this sohuld never happens in a successful request');
-      }
-      const responseBody = response.data;
+      const response = await this.api.delete<ApiSuccessResponse<T>>(url, config);
 
-      return {
-        data: responseBody.data,
-        status: response.status,
-        success: true,
-        message: responseBody.message,
-        timestamp: responseBody.timestamp,
-      };
-    } catch (error: any) {
-      const apiErrorMessage = error.response?.data?.error || error.message || 'Request failed';
+      this.validateApiResponseSchema(response.data);
 
-      const status = error.response?.status;
-
-      if (status !== 200) this.displayDevAlert(status, apiErrorMessage);
-
-      return { error: apiErrorMessage, status, success: false };
+      return this.toApiSuccessResponse(response);
+    } catch (error: ApiErrorResponse | unknown) {
+      const errorResponse = this.handleApiErrorResponse(error);
+      throw errorResponse;
     }
   }
 }

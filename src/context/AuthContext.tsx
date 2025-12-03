@@ -44,6 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return response.data;
       }
 
+      jwtTokenManager.clearTokens();
+
       throw new Error('Failed to fetch user data from backend');
     },
     retry: false,

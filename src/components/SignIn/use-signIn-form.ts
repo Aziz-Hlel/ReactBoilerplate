@@ -16,10 +16,7 @@ const useSignInForm = () => {
 
   const onSubmit = async (data: SignInRequestDto) => {
     try {
-      const firebaseResponse = await firebaseService.signInWithEmailAndPassword(
-        data.email,
-        data.password,
-      );
+      const firebaseResponse = await firebaseService.signInWithEmailAndPassword(data.email, data.password);
 
       if (firebaseResponse.success === false) {
         form.setError(...firebaseResponse.error);
@@ -33,6 +30,9 @@ const useSignInForm = () => {
       });
 
       if (response.success === false) {
+        if (response.status === 500) {
+          form.setError('root', { message: 'Server error. Please try again later.' });
+        }
         throw new Error('Failed to sign in with backend');
       }
 

@@ -22,34 +22,34 @@ import { ArrowUp, ArrowUpDown, ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useMemo, useState } from 'react';
 import { Input } from '../ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import type { User } from '@/types/user/user';
 import userService from '@/Api/service/userService';
 
-type TableColumnDefinition<T> = ColumnDef<T, any> & { accessorKey: keyof T };
+type TableColumnDefinition<T> = ColumnDef<T, unknown> & { accessorKey: keyof T };
+
+const TableHeaderComp: React.FC<React.ComponentProps<'button'>> = ({ children }) => {
+  return (
+    <div className="truncate cursor-pointer flex items-center justify-start gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all [&_svg:not([class*='size-'])]:size-4  ">
+      {children}
+    </div>
+  );
+};
 
 const columnsRows: TableColumnDefinition<User>[] = [
   {
     accessorKey: 'email',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
+        <TableHeaderComp onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Email
           {column.getIsSorted() === 'asc' && <ArrowUp />}
           {column.getIsSorted() === 'desc' && <ArrowUp className="rotate-180" />}
           {column.getIsSorted() === false && <ArrowUpDown />}
-        </Button>
+        </TableHeaderComp>
       );
     },
     cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
@@ -61,15 +61,12 @@ const columnsRows: TableColumnDefinition<User>[] = [
     accessorKey: 'username',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
+        <TableHeaderComp onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Username
           {column.getIsSorted() === 'asc' && <ArrowUp />}
           {column.getIsSorted() === 'desc' && <ArrowUp className="rotate-180" />}
           {column.getIsSorted() === false && <ArrowUpDown />}
-        </Button>
+        </TableHeaderComp>
       );
     },
     cell: ({ row }) => <div className="">{row.getValue('username')}</div>,
@@ -81,15 +78,12 @@ const columnsRows: TableColumnDefinition<User>[] = [
     accessorKey: 'role',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
+        <TableHeaderComp onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Role
           {column.getIsSorted() === 'asc' && <ArrowUp />}
           {column.getIsSorted() === 'desc' && <ArrowUp className="rotate-180" />}
           {column.getIsSorted() === false && <ArrowUpDown />}
-        </Button>
+        </TableHeaderComp>
       );
     },
     cell: ({ row }) => <div className="">{row.getValue('role')}</div>,
@@ -208,6 +202,8 @@ const UsersTable = () => {
   const table = useReactTable({
     data: tableData,
     columns: columnsRows,
+    columnResizeMode: 'onChange', // helps with adjusting column size
+
     onSortingChange: onSortingChange,
     onColumnFiltersChange: onColumnFiltersChange,
     getCoreRowModel: getCoreRowModel(),
@@ -257,17 +253,40 @@ const UsersTable = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="overflow-hidden rounded-md border">
-          <Table>
+        <div className="overflow-hidden rounded-md border w-fit max-w-full">
+          <Table
+            className="table-fixed max-w-full "
+            style={{
+              width: table.getCenterTotalSize(), // this is needed for column resizing
+            }}
+          >
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      <TableHead
+                        className="group/head relative h-10 select-none last:[&>.cursor-col-resize]:opacity-0"
+                        key={header.id}
+                        {...{
+                          colSpan: header.colSpan,
+                          style: {
+                            width: header.getSize(),
+                          },
+                        }}
+                      >
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getCanResize() && (
+                          <div
+                            {...{
+                              onDoubleClick: () => header.column.resetSize(),
+                              onMouseDown: header.getResizeHandler(),
+                              onTouchStart: header.getResizeHandler(),
+                              className:
+                                'group-last/head:hidden absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:translate-x-px',
+                            }}
+                          />
+                        )}
                       </TableHead>
                     );
                   })}
@@ -279,25 +298,20 @@ const UsersTable = () => {
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="truncate">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))}
               {!areAllRowsFilled &&
-                Array.from({ length: pageSize - table.getRowModel().rows.length }).map(
-                  (_, index) => (
-                    <TableRow key={index}>
-                      <TableCell
-                        colSpan={columnsRows.length}
-                        className=" h-full text-center invisible"
-                      >
-                        No results
-                      </TableCell>
-                    </TableRow>
-                  ),
-                )}
+                Array.from({ length: pageSize - table.getRowModel().rows.length }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell colSpan={columnsRows.length} className=" h-full text-center invisible">
+                      No results
+                    </TableCell>
+                  </TableRow>
+                ))}
               {!isTablePopulated && (
                 <TableRow>
                   <TableCell colSpan={columnsRows.length} className="h-24 text-center">
@@ -313,8 +327,7 @@ const UsersTable = () => {
             {/* {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected. */}
             Showing {pagination.size * (pagination.number - 1) + 1}-
-            {pagination.size * (pagination.number - 1) + tableData.length} of{' '}
-            {pagination.totalElements} results
+            {pagination.size * (pagination.number - 1) + tableData.length} of {pagination.totalElements} results
           </div>
           <Select onValueChange={onPageSizeChange} value={String(pageSize)}>
             <SelectTrigger className="w-fit">
@@ -331,15 +344,10 @@ const UsersTable = () => {
           </Select>
 
           <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => changePage('prev')}
-              disabled={pageIndex === 1}
-            >
+            <Button variant="outline" size="sm" onClick={() => changePage('prev')} disabled={pageIndex === 1}>
               {'<'}
             </Button>
-            {[...Array(pagination.totalPages)].map((_, index) => (
+            {/* {[...Array(pagination.totalPages)].map((_, index) => (
               <Button
                 key={index}
                 variant={pagination.number === index + 1 ? 'default' : 'outline'}
@@ -348,7 +356,7 @@ const UsersTable = () => {
               >
                 {index + 1}
               </Button>
-            ))}
+            ))} */}
             <Button
               variant="outline"
               size="sm"

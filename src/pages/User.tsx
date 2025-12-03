@@ -19,8 +19,10 @@ const UserPage = () => {
           { title: 'Profile', href: '/users/profile' },
         ]}
       />
-
+<div className=' flex w-1/2'>
       <UsersTable />
+
+</div>
     </div>
   );
 };
