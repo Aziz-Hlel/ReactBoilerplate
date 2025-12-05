@@ -13,12 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Link } from 'react-router-dom';
 import type { Prettify } from 'node_modules/zod/v4/core/util.d.cts';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 type NavRoute = {
   title: string;
@@ -95,12 +90,7 @@ const NestedRoute = ({ route }: { route: INestedRoute }) => {
 
   if (state === 'expanded')
     return (
-      <Collapsible
-        key={route.title}
-        asChild
-        defaultOpen={route.isActive}
-        className="group/collapsible group"
-      >
+      <Collapsible key={route.title} asChild defaultOpen={route.isActive} className="group/collapsible group">
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
             <SidebarMenuButton>
@@ -158,12 +148,7 @@ type ISimpleRoute = Omit<NavRoute, 'items'>;
 const SimpleRoute = ({ route }: { route: ISimpleRoute }) => {
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton
-        aria-disabled={!route.isActive}
-        asChild
-        className="cursor-pointer"
-        tooltip={route.title}
-      >
+      <SidebarMenuButton aria-disabled={!route.isActive} asChild className="cursor-pointer" tooltip={route.title}>
         <Link to={route.url} className="flex items-center gap-2">
           <route.icon />
           <span>{route.title}</span>

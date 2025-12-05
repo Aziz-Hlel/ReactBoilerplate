@@ -22,7 +22,7 @@ const creatAxiosInstance = (): AxiosInstance => {
 };
 
 type CustomAxiosRequestOptions = AxiosRequestConfig & {
-  params?: Record<string, unknown>;
+  params?: Record<string, unknown> | URLSearchParams;
 };
 class ApiService {
   private api: AxiosInstance;
@@ -199,7 +199,7 @@ class ApiService {
     }
   }
 
-  async getThrowable<T>(url: string, config?: CustomAxiosRequestOptions): Promise<ApiSuccessResponse<T>> {
+  async getThrowable<T>(url: string, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>> {
     try {
       const response = await this.api.get<ApiSuccessResponse<T>>(url, config);
 

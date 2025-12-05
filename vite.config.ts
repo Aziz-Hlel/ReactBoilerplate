@@ -14,8 +14,7 @@ function getPort(mode: string): number | undefined {
 
   if (!value && ['dev', 'test'].includes(NODE_ENV))
     throw new Error(`❌ Missing required VITE_PORT when NODE_ENV is ${NODE_ENV}`);
-  if (value && isNaN(Number(value)))
-    throw new Error(`❌ Invalid value for VITE_PORT: "${value}" is not a number`);
+  if (value && isNaN(Number(value))) throw new Error(`❌ Invalid value for VITE_PORT: "${value}" is not a number`);
 
   return Number(value) || undefined;
 }

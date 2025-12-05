@@ -15,10 +15,7 @@ const useSignUpForm = () => {
   const onSubmit = async (data: SignUpRequestSchema) => {
     try {
       // const response = await register(data);
-      const firebaseResponse = await firebaseService.createUserWithEmailAndPassword(
-        data.email,
-        data.password,
-      );
+      const firebaseResponse = await firebaseService.createUserWithEmailAndPassword(data.email, data.password);
 
       if (firebaseResponse.success === false) {
         form.setError(...firebaseResponse.error);

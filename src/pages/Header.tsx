@@ -28,7 +28,7 @@ const BreadcrumbHeader = ({ breadcrumbs }: { breadcrumbs: IBreadCrumb[] }) => {
                 {index < breadcrumbs.length - 1 && (
                   <>
                     <BreadcrumbItem className="hidden md:block" key={index}>
-                      <BreadcrumbLink>
+                      <BreadcrumbLink asChild>
                         <Link to={breadcrumb.href || '#'}>{breadcrumb.title}</Link>
                       </BreadcrumbLink>
                     </BreadcrumbItem>

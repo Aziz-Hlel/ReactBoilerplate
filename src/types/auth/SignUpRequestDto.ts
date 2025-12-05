@@ -2,12 +2,9 @@ import z from 'zod';
 
 export const singUpSchema = z
   .object({
-    email: z
-      .email({ message: 'Invalid email' })
-      .trim()
-      .max(255, { message: 'Email is too long, max 255 characters' }),
+    email: z.email({ message: 'Invalid email' }).trim().max(255, { message: 'Email is too long, max 255 characters' }),
     password: z
-      .string()
+      .string({ error: 'Invalid password' })
       .trim()
       .min(8, { message: 'Password is too short, min 8 characters' })
       .max(50, { message: 'Password is too long, max 50 characters' }),

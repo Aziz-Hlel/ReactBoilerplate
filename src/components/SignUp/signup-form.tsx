@@ -1,13 +1,6 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import useSignUpForm from './use-signUp-form';
 import { Controller } from 'react-hook-form';
@@ -27,9 +20,7 @@ export function SignupForm() {
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center text-nowrap">
           <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Fill in the form below to create your account
-          </p>
+          <p className="text-muted-foreground text-sm text-balance">Fill in the form below to create your account</p>
         </div>
 
         <Controller
@@ -55,12 +46,7 @@ export function SignupForm() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={`${formId}-${field.name}`}>Password</FieldLabel>
-              <Input
-                {...field}
-                id={`${formId}-${field.name}`}
-                aria-invalid={fieldState.invalid}
-                type="password"
-              />
+              <Input {...field} id={`${formId}-${field.name}`} aria-invalid={fieldState.invalid} type="password" />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -72,12 +58,7 @@ export function SignupForm() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={`${formId}-${field.name}`}>Confirm Password</FieldLabel>
-              <Input
-                {...field}
-                id={`${formId}-${field.name}`}
-                aria-invalid={fieldState.invalid}
-                type="password"
-              />
+              <Input {...field} id={`${formId}-${field.name}`} aria-invalid={fieldState.invalid} type="password" />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

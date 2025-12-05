@@ -19,10 +19,9 @@ const UserPage = () => {
           { title: 'Profile', href: '/users/profile' },
         ]}
       />
-<div className=' flex w-1/2'>
-      <UsersTable />
-
-</div>
+      <div className=" flex w-10/12">
+        <UsersTable />
+      </div>
     </div>
   );
 };

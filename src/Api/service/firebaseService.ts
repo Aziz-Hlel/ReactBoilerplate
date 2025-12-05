@@ -89,10 +89,7 @@ const mapFirebaseOAuthError = (code: string): FirebaseError => {
 };
 
 const firebaseService = {
-  createUserWithEmailAndPassword: async (
-    email: string,
-    password: string,
-  ): Promise<FirebaseResponse<string>> => {
+  createUserWithEmailAndPassword: async (email: string, password: string): Promise<FirebaseResponse<string>> => {
     try {
       const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
       const user = userCredential.user;
@@ -120,10 +117,7 @@ const firebaseService = {
     }
   },
 
-  signInWithEmailAndPassword: async (
-    email: string,
-    password: string,
-  ): Promise<FirebaseResponse<string>> => {
+  signInWithEmailAndPassword: async (email: string, password: string): Promise<FirebaseResponse<string>> => {
     try {
       const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
 

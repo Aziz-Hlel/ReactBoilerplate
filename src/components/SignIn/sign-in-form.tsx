@@ -1,14 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import type { SignInRequestDto } from '@/types/auth/SignInRequestDto';
@@ -70,11 +63,7 @@ export function LoginForm({ form, onSubmit }: LoginFormProps) {
                         Forgot your password?
                       </Link>
                     </FieldLabel>
-                    <Input
-                      {...field}
-                      id={`${formId}-${field.name}`}
-                      aria-invalid={fieldState.invalid}
-                    />
+                    <Input {...field} id={`${formId}-${field.name}`} aria-invalid={fieldState.invalid} />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
@@ -93,9 +82,7 @@ export function LoginForm({ form, onSubmit }: LoginFormProps) {
                 )}
               </Field>
 
-              <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Or
-              </FieldSeparator>
+              <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">Or</FieldSeparator>
               <Field className="">
                 <Button variant="outline" type="button" onClick={loginWithGoogle}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -123,8 +110,7 @@ export function LoginForm({ form, onSubmit }: LoginFormProps) {
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{' '}
-        <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
   );

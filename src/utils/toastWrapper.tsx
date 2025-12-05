@@ -49,7 +49,7 @@ const toastWrapper = {
       if (!['dev', 'stage', 'test'].includes(ENV.VITE_NODE_ENV)) return;
       const defaultMessage = 'Crit Dev error - ';
       const completeMessage = defaultMessage + message;
-      const a: ReactNode = <span className=' text-pink-700'>{completeMessage}</span>;
+      const a: ReactNode = <span className=" text-pink-700">{completeMessage}</span>;
 
       const defaultOptions: ExternalToast = {
         description: a,

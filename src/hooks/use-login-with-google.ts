@@ -10,18 +10,14 @@ const useLoginWithGoogle = () => {
     const googleLoginResponse = await firebaseService.loginWithGoogle();
 
     if (googleLoginResponse.success === false) {
-      throw new Error(
-        'Failed to sign in with Google: ' + JSON.stringify(googleLoginResponse.error, null, 2),
-      );
+      throw new Error('Failed to sign in with Google: ' + JSON.stringify(googleLoginResponse.error, null, 2));
     }
     const idToken = googleLoginResponse.data;
 
     const signInResponse = await oAuthSignIn({ idToken });
 
     if (signInResponse.success === false) {
-      throw new Error(
-        'OAuth sign-in failed in the backend: ' + JSON.stringify(signInResponse.error, null, 2),
-      );
+      throw new Error('OAuth sign-in failed in the backend: ' + JSON.stringify(signInResponse.error, null, 2));
     }
 
     navigate('/profile');

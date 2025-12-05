@@ -1,13 +1,4 @@
-import {
-  useReactTable,
-  type ColumnDef,
-  type ColumnFiltersState,
-  type SortingState,
-  type VisibilityState,
-  getCoreRowModel,
-  flexRender,
-  type Updater,
-} from '@tanstack/react-table';
+import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import {
   Select,
   SelectContent,
@@ -18,186 +9,31 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-import { ArrowUp, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
-import { useMemo, useState } from 'react';
-import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
-import type { User } from '@/types/user/user';
-import userService from '@/Api/service/userService';
-
-type TableColumnDefinition<T> = ColumnDef<T, unknown> & { accessorKey: keyof T };
-
-const TableHeaderComp: React.FC<React.ComponentProps<'button'>> = ({ children }) => {
-  return (
-    <div className="truncate cursor-pointer flex items-center justify-start gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all [&_svg:not([class*='size-'])]:size-4  ">
-      {children}
-    </div>
-  );
-};
-
-const columnsRows: TableColumnDefinition<User>[] = [
-  {
-    accessorKey: 'email',
-    header: ({ column }) => {
-      return (
-        <TableHeaderComp onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Email
-          {column.getIsSorted() === 'asc' && <ArrowUp />}
-          {column.getIsSorted() === 'desc' && <ArrowUp className="rotate-180" />}
-          {column.getIsSorted() === false && <ArrowUpDown />}
-        </TableHeaderComp>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
-
-    enableSorting: true,
-    enableHiding: true,
-  },
-  {
-    accessorKey: 'username',
-    header: ({ column }) => {
-      return (
-        <TableHeaderComp onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Username
-          {column.getIsSorted() === 'asc' && <ArrowUp />}
-          {column.getIsSorted() === 'desc' && <ArrowUp className="rotate-180" />}
-          {column.getIsSorted() === false && <ArrowUpDown />}
-        </TableHeaderComp>
-      );
-    },
-    cell: ({ row }) => <div className="">{row.getValue('username')}</div>,
-
-    enableSorting: true,
-    enableHiding: true,
-  },
-  {
-    accessorKey: 'role',
-    header: ({ column }) => {
-      return (
-        <TableHeaderComp onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Role
-          {column.getIsSorted() === 'asc' && <ArrowUp />}
-          {column.getIsSorted() === 'desc' && <ArrowUp className="rotate-180" />}
-          {column.getIsSorted() === false && <ArrowUpDown />}
-        </TableHeaderComp>
-      );
-    },
-    cell: ({ row }) => <div className="">{row.getValue('role')}</div>,
-
-    enableSorting: true,
-    enableHiding: true,
-  },
-];
+import columnsRows from './table/columnsRows';
+import useGetTableData from './table/use-get-table-data';
+import useTableProps from './table/use-table-props';
+import SearchInput from './table/SearchInput';
 
 const UsersTable = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { tableData, pagination } = useGetTableData();
 
-  const { data: response } = useQuery({
-    queryKey: ['users', searchParams.toString()],
-    queryFn: async () => await userService.getUsers(searchParams),
-  });
-
-  const tableData = response?.success ? response?.data.content : [];
-  const pagination = response?.success
-    ? response?.data.pagination
-    : { size: 0, number: 0, totalElements: 0, totalPages: 0 };
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-
-  const onSortingChange = (updater: Updater<SortingState>) => {
-    const newSortingState = typeof updater === 'function' ? updater(sorting) : updater;
-
-    const sortField = newSortingState[0]?.id ?? 'createdAt';
-    const sortOrder = newSortingState[0]?.desc ? 'desc' : 'asc';
-
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set('sort', sortField);
-      params.set('order', sortOrder);
-      return params;
-    });
-  };
-
-  const sorting = useMemo(() => {
-    if (searchParams.get('sort') && searchParams.get('order')) {
-      return [
-        {
-          id: searchParams.get('sort') as string,
-          desc: searchParams.get('order') === 'desc',
-        },
-      ];
-    }
-    return [];
-  }, [searchParams]);
-
-  const columnFilters = useMemo(() => {
-    const searchValue = searchParams.get('search');
-    if (searchValue !== '') {
-      return [
-        {
-          id: 'email',
-          value: searchValue,
-        },
-      ];
-    }
-    return [];
-  }, [searchParams]);
-
-  const onColumnFiltersChange = (updater: Updater<ColumnFiltersState>) => {
-    const newColumnFiltersState = typeof updater === 'function' ? updater(columnFilters) : updater;
-    const searchValue = (newColumnFiltersState[0]?.value as string) ?? '';
-
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      searchValue !== '' ? params.set('search', searchValue) : params.delete('search');
-      return params;
-    });
-  };
-
-  const pageSize = useMemo(() => {
-    const page = Number(searchParams.get('size'));
-    if (page < 1) {
-      searchParams.set('size', '5');
-    }
-    return page;
-  }, [searchParams]);
-
-  const pageIndex = useMemo(() => {
-    const page = Number(searchParams.get('page'));
-    if (page < 1) {
-      searchParams.set('page', '1');
-    }
-    return page;
-  }, [searchParams]);
-
-  const changePage = (direc: 'next' | 'prev' | number) => {
-    if (pageIndex === 1 && direc === 'prev') return;
-    if (pageIndex === pagination.totalPages && direc === 'next') return;
-
-    let newPage: number = pagination.number;
-    if (direc === 'next') newPage = pagination.number + 1;
-    if (direc === 'prev') newPage = pagination.number - 1;
-    if (typeof direc === 'number') newPage = direc;
-
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set('page', String(newPage));
-      return params;
-    });
-  };
-
-  const onPageSizeChange = (size: string) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set('size', String(size));
-      params.set('page', '1');
-      return params;
-    });
-  };
+  const {
+    sorting,
+    onSortingChange,
+    columnFilters,
+    onColumnFiltersChange,
+    pageSize,
+    pageIndex,
+    changePage,
+    onPageSizeChange,
+    columnVisibility,
+    setColumnVisibility,
+    rowSelection,
+  } = useTableProps();
 
   const table = useReactTable({
     data: tableData,
@@ -218,16 +54,21 @@ const UsersTable = () => {
 
   const isTablePopulated = table.getRowModel().rows?.length !== 0;
   const areAllRowsFilled = isTablePopulated && table.getRowModel().rows?.length === pageSize;
+
+  const firstElementIndex = pagination.offset + 1;
+  const lastElementIndex = firstElementIndex + table.getRowModel().rows.length - 1;
+  
   return (
     <>
       <div className="w-full">
-        <div className="flex items-center py-4">
-          <Input
+        <div className="flex items-center py-4 px-2 gap-4">
+          {/* <Input
             placeholder="Filter emails..."
             value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
             onChange={(event) => table.getColumn('email')?.setFilterValue(event.target.value)}
             className="max-w-sm"
-          />
+          /> */}
+          <SearchInput table={table} /> 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -326,8 +167,8 @@ const UsersTable = () => {
           <div className="text-muted-foreground flex-1 text-sm">
             {/* {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected. */}
-            Showing {pagination.size * (pagination.number - 1) + 1}-
-            {pagination.size * (pagination.number - 1) + tableData.length} of {pagination.totalElements} results
+            Showing {firstElementIndex} to {lastElementIndex} of {pagination.totalElements} results
+            {/* {pagination.size * (pagination.number - 1) + response.length} of {pagination.totalElements} results */}
           </div>
           <Select onValueChange={onPageSizeChange} value={String(pageSize)}>
             <SelectTrigger className="w-fit">
