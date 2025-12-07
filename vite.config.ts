@@ -34,15 +34,15 @@ export default ({ mode }: { mode: string }) => {
       }),
     ],
     resolve: {
-      // *
       alias: {
-        // *
-        '@': path.resolve(__dirname, './src'), // *
-      }, // *
+        '@': path.resolve(__dirname, './src'),
+      },
     },
 
     server: {
       port: getPort(mode),
+      strictPort: true,
+      host: '0.0.0.0', // for docker
     },
   });
 };
