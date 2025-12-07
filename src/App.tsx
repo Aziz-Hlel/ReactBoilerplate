@@ -13,7 +13,15 @@ import Sidebar from './pages/Sidebar';
 import { UserSessionProvider } from './context/UserConext';
 import UserPage from './pages/User';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
 
 function App() {
   return (
